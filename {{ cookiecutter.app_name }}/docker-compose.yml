@@ -1,0 +1,16 @@
+db:
+  image: postgres
+  ports:
+    - "5432"
+web:
+  build: .
+  command: "/bin/bash -c 'python manage.py migrate; python manage.py runserver 0.0.0.0:{{ cookiecutter.port }}'"
+  volumes:
+    - .:/src
+  environment:
+    PORT: {{ cookiecutter.port }}
+    DATABASE_URL: postgres://postgres@db:5432/postgres
+  ports:
+    - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
+  links:
+    - db
