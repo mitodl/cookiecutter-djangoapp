@@ -31,7 +31,7 @@ def load_fallback():
         if os.path.isfile(config_path):
             config_file_path = config_path
             break
-    if config_file_path:
+    if config_file_path is not None:
         with open(config_file_path) as config_file:
             fallback_config = yaml.safe_load(config_file)
     return fallback_config
@@ -52,7 +52,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_var(
     'SECRET_KEY',
-    '36boam8miiz0c22il@3&gputb=wrqr2plah=0#0a_bknw9(2^r'
+    '{{ cookiecutter.secret_key }}'
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!

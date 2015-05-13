@@ -17,7 +17,8 @@ class TestSettings(unittest.TestCase):
     def test_load_fallback(self):
         """Verify our YAML load works as expected."""
         config_settings = {'TEST_KEY': 'yessir'}
-        _, temp_config_path = tempfile.mkstemp()
+        handle, temp_config_path = tempfile.mkstemp()
+        os.close(handle)
         self.addCleanup(os.remove, temp_config_path)
         with open(temp_config_path, 'w') as temp_config:
             temp_config.write(yaml.dump(config_settings))

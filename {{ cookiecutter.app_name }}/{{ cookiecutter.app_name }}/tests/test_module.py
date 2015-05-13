@@ -10,7 +10,7 @@ import semantic_version
 class TestModule(unittest.TestCase):
     """
     Test core module features, like asserting the version
-    and making sure we are exposing our classes
+    and making sure we are exposing our classes.
     """
 
     @staticmethod

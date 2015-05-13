@@ -21,7 +21,7 @@ install docker-compose`` and run ``docker-compose up``. This will set
 up
 a near production-ready containerized development environment that
 runs migrations, with the django development server running on
-port 8070.
+port {{ cookiecutter.port }}.
 
 To run one-off commands, like shell, you can run
 ``docker-compose run web python manage.py shell`` or to create root
@@ -49,12 +49,11 @@ requirements file, just run ``tox``.
 Continuous Testing
 ~~~~~~~~~~~~~~~~~~
 
-If you want test to run on file changes, the
-``test_requirements.txt`` adds pytest-watcher, which can be started
-with
-``ptw``. This unfortunately will not work well in the docker
-environment
-because the file events it uses are fired on the host OS, and not the
-docker OS. I have added an
+If you want test to run on file changes, the ``test_requirements.txt``
+adds pytest-watcher, which can be started with ``ptw``. This
+unfortunately will not work well in the Docker container because the
+file events it uses are fired on the host OS, and not the docker OS. I
+have corrected it upstream with
 `issue<https://github.com/joeyespo/pytest-watch/issues/9>`_ to the
-`pytest-watch repo<https://github.com/joeyespo/pytest-watch>`_
+`pytest-watch repo<https://github.com/joeyespo/pytest-watch>`_, but it
+has not been released to pypi as of this writing.

@@ -7,7 +7,10 @@ from setuptools import setup, find_packages
 from setuptools.command.test import test as testcommand
 
 with open('test_requirements.txt') as test_reqs:
-    tests_require = test_reqs.readlines()  # pylint: disable=invalid-name
+    TESTS_REQUIRE = test_reqs.readlines()
+
+with open('README.rst') as readme_file:
+    README = readme_file.read()
 
 
 class PyTest(testcommand):
@@ -25,15 +28,13 @@ class PyTest(testcommand):
     test_args = []
 
     def initialize_options(self):
-        testcommand.initialize_options(self)
+        pass
 
     def finalize_options(self):
-        testcommand.finalize_options(self)
         self.test_suite = True
         self.test_args = []
         if self.coverage:
-            self.test_args.append('--cov')
-            self.test_args.append('{{ cookiecutter.app_name }}')
+            self.test_args.extend(['--cov', '{{ cookiecutter.app_name }}'])
         if self.pep8:
             self.test_args.append('--pep8')
         if self.lint:
@@ -48,11 +49,7 @@ class PyTest(testcommand):
 
         plugin_manager = _pytest.config.get_plugin_manager()
         plugin_manager.consider_setuptools_entrypoints()
-        errno = pytest.main(self.test_args)
-        sys.exit(errno)
-
-
-README = open('README.rst').read()
+        sys.exit(pytest.main(self.test_args))
 
 setup(
     name='{{ cookiecutter.app_name }}',
@@ -80,7 +77,7 @@ setup(
         'Programming Language :: Python',
     ],
     test_suite="{{ cookiecutter.app_name }}.tests",
-    tests_require=tests_require,
+    tests_require=TESTS_REQUIRE,
     cmdclass={"test": PyTest},
     include_package_data=True,
     zip_safe=False,

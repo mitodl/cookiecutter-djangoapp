@@ -18,4 +18,8 @@ class TestViews(TestCase):
     def test_index_view(self):
         """Verify the index view is as expected"""
         response = self.client.get(reverse('{{ cookiecutter.app_name }}_index'))
-        self.assertContains(response, 'Hi', status_code=200)
+        self.assertContains(
+            response,
+            "Hi, I'm {{ cookiecutter.app_name }}",
+            status_code=200
+        )
