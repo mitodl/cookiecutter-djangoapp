@@ -1,0 +1,8 @@
+pytest
+pytest-pep8
+pytest-pylint
+pytest-cov
+pytest-django
+pytest-watch
+mock
+semantic_version

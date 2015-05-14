@@ -1,0 +1,38 @@
+FROM ubuntu:trusty
+MAINTAINER ODL DevOps <mitx-devops@mit.edu>
+
+
+# Add package files
+ADD requirements.txt /tmp/requirements.txt
+ADD test_requirements.txt /tmp/test_requirements.txt
+ADD apt.txt /tmp/apt.txt
+WORKDIR /tmp
+
+# Install base packages
+RUN apt-get update
+RUN apt-get install -y $(grep -vE "^\s*#" apt.txt  | tr "\n" " ")
+RUN pip install pip --upgrade
+
+# Install project packages
+RUN pip install -r requirements.txt
+RUN pip install -r test_requirements.txt
+
+# Add, and run as, non-root user.
+RUN mkdir /src
+RUN adduser --disabled-password --gecos "" --home=/src --no-create-home mitodl
+
+# Add project
+ADD . /src
+WORKDIR /src
+RUN chown -R mitodl:mitodl /src
+
+# Install this app
+RUN pip install -e .
+
+# Set pip cache folder, as it is breaking pip when it is on a shared volume
+ENV XDG_CACHE_HOME /tmp/.cache
+
+EXPOSE {{ cookiecutter.port }}
+
+USER mitodl
+CMD uwsgi uwsgi.ini
