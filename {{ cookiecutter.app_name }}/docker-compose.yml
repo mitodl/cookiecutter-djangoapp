@@ -4,7 +4,12 @@ db:
     - "5432"
 web:
   build: .
-  command: "/bin/bash -c 'python manage.py migrate; python manage.py runserver 0.0.0.0:{{ cookiecutter.port }}'"
+  command: >
+    /bin/bash -c '
+    sleep 3 &&
+    npm install --production --no-bin-links &&
+    python manage.py migrate &&
+    python manage.py runserver 0.0.0.0:{{ cookiecutter.port }}'
   volumes:
     - .:/src
   environment:

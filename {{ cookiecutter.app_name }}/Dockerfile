@@ -1,38 +1,45 @@
 FROM ubuntu:trusty
 MAINTAINER ODL DevOps <mitx-devops@mit.edu>
 
-
 # Add package files
-ADD requirements.txt /tmp/requirements.txt
-ADD test_requirements.txt /tmp/test_requirements.txt
-ADD apt.txt /tmp/apt.txt
 WORKDIR /tmp
 
 # Install base packages
-RUN apt-get update
-RUN apt-get install -y $(grep -vE "^\s*#" apt.txt  | tr "\n" " ")
-RUN pip install pip --upgrade
+COPY apt.txt /tmp/apt.txt
+RUN apt-get update &&\
+    apt-get install -y $(grep -vE "^\s*#" apt.txt  | tr "\n" " ") &&\
+    ln -s /usr/bin/nodejs /usr/bin/node &&\
+    pip install pip --upgrade
+
+# Add non-root user.
+RUN adduser --disabled-password --gecos "" mitodl
 
 # Install project packages
-RUN pip install -r requirements.txt
-RUN pip install -r test_requirements.txt
 
-# Add, and run as, non-root user.
-RUN mkdir /src
-RUN adduser --disabled-password --gecos "" --home=/src --no-create-home mitodl
+# Python 2
+COPY requirements.txt /tmp/requirements.txt
+COPY test_requirements.txt /tmp/test_requirements.txt
+RUN pip install -r requirements.txt &&\
+    pip install -r test_requirements.txt
+
+# Python 3
+RUN pip3 install -r requirements.txt &&\
+    pip3 install -r test_requirements.txt
 
 # Add project
-ADD . /src
+COPY . /src
 WORKDIR /src
 RUN chown -R mitodl:mitodl /src
 
-# Install this app
-RUN pip install -e .
+# Gather static
+RUN ./manage.py collectstatic --noinput
+RUN apt-get clean && apt-get purge
+USER mitodl
 
 # Set pip cache folder, as it is breaking pip when it is on a shared volume
 ENV XDG_CACHE_HOME /tmp/.cache
 
+# Set and expose port for uwsgi config
 EXPOSE {{ cookiecutter.port }}
-
-USER mitodl
+ENV PORT {{ cookiecutter.port }}
 CMD uwsgi uwsgi.ini
