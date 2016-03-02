@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.8/ref/settings/
 
 """
+import ast
 import os
 
 import dj_database_url
@@ -40,8 +41,12 @@ FALLBACK_CONFIG = load_fallback()
 
 
 def get_var(name, default):
-    """Return the settings in a precedence way with default"""
-    return os.environ.get(name, FALLBACK_CONFIG.get(name, default))
+    """Return the settings in a precedence way with default."""
+    try:
+        value = os.environ.get(name, FALLBACK_CONFIG.get(name, default))
+        return ast.literal_eval(value)
+    except (SyntaxError, ValueError):
+        return value
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

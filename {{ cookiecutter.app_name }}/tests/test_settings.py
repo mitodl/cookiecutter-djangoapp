@@ -28,11 +28,14 @@ class TestSettings(unittest.TestCase):
             fallback_config = load_fallback()
             self.assertDictEqual(fallback_config, config_settings)
 
-    @mock.patch.dict('{{ cookiecutter.project_name }}.settings.FALLBACK_CONFIG', {'FOO': 'bar'})
     def test_get_var(self):
         """Verify that get_var does the right thing with precedence"""
-        # Verify fallback
-        self.assertEqual(get_var('FOO', 'notbar'), 'bar')
+        with mock.patch.dict(
+            '{{ cookiecutter.project_name }}.settings.FALLBACK_CONFIG',
+            {'FOO': 'bar'}
+        ):
+            # Verify fallback
+            self.assertEqual(get_var('FOO', 'notbar'), 'bar')
 
         # Verify default value
         self.assertEqual(get_var('NOTATHING', 'foobar'), 'foobar')
@@ -42,3 +45,21 @@ class TestSettings(unittest.TestCase):
             'os.environ', {'FOO': 'notbar'}, clear=True
         ):
             self.assertEqual(get_var('FOO', 'lemon'), 'notbar')
+
+        # Verify that types work:
+        with mock.patch.dict(
+            'os.environ',
+            {
+                'FOO': 'False',
+                'BAR': '[1,2,3]',
+            },
+            clear=True
+        ):
+            self.assertFalse(get_var('FOO', True))
+            self.assertEqual(get_var('BAR', []), [1, 2, 3])
+        # Make sure real types still work too (i.e. from yaml load)
+        with mock.patch.dict(
+            '{{ cookiecutter.project_name }}.settings.FALLBACK_CONFIG',
+            {'BLAH': True}
+        ):
+            self.assertEqual(get_var('BLAH', False), True)
