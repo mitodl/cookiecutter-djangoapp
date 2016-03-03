@@ -1,0 +1,38 @@
+db:
+  image: postgres
+  ports:
+    - "5432"
+
+web:
+  build: .
+  command: >
+    /bin/bash -c '
+    sleep 3 &&
+    python3 manage.py migrate &&
+    ./with_host.sh python3 manage.py runserver 0.0.0.0:{{ cookiecutter.port }}'
+  volumes:
+    - .:/src
+  environment:
+    DEBUG: 'True'
+    PORT: {{ cookiecutter.port }}
+    DATABASE_URL: postgres://postgres@db:5432/postgres
+    STATUS_TOKEN: 'test-token'
+  env_file: .env
+  ports:
+    - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
+  links:
+    - db
+
+watch:
+  image: {{ cookiecutter.project_name}}_web
+  command: >
+    /bin/bash -c '
+    npm cache clean &&
+    npm install --no-bin-links &&
+    npm rebuild node-sass &&
+    echo Finished npm install &&
+    node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.config.dev.js -d --content-base ./static --host 0.0.0.0 --port {{ cookiecutter.webpack_dev_server_port }} --progress --inline --hot'
+  ports:
+    - "{{ cookiecutter.webpack_dev_server_port }}:{{ cookiecutter.webpack_dev_server_port }}"
+  volumes:
+    - .:/src

@@ -1,0 +1,9 @@
+# Core requirements
+git
+curl
+libpq-dev
+python3-pip
+python3-dev
+
+# developer requirements
+postgresql-client

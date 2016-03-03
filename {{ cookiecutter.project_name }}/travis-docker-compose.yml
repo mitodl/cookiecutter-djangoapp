@@ -4,10 +4,13 @@ db:
     - "5432"
 web:
   build: .
-  command: "/bin/bash -c 'python manage.py migrate; python manage.py runserver 0.0.0.0:{{ cookiecutter.port }}'"
-  volumes:
-    - .:/src
+  command: >
+    /bin/bash -c '
+    sleep 3 &&
+    python3 manage.py migrate &&
+    ./with_host.sh python3 manage.py runserver 0.0.0.0:8079'
   environment:
+    DEBUG: 'True'
     PORT: {{ cookiecutter.port }}
     DATABASE_URL: postgres://postgres@db:5432/postgres
   ports:

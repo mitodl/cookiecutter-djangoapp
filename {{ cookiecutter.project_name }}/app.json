@@ -1,0 +1,38 @@
+{
+    "name": "{{ cookiecutter.project_name }}",
+    "description": "{{ cookiecutter.description|replace("\"","\\\"") }}",
+    "keywords": [
+        "Django",
+        "Python",
+        "MIT",
+        "Office of Digital Learning"
+    ],
+    "website": "https://github.com/mitodl/{{ cookiecutter.project_name }}",
+    "repository": "https://github.com/mitodl/{{ cookiecutter.project_name }}",
+    "success_url": "/",
+    "scripts": {
+        "postdeploy": "./manage.py migrate"
+    },
+    "addons": [
+        "heroku-postgresql:hobby-dev",
+        "newrelic:wayne"
+    ],
+    "buildpacks": [
+        {
+            "url": "https://github.com/heroku/heroku-buildpack-nodejs"
+        },
+        {
+            "url": "https://github.com/heroku/heroku-buildpack-python"
+        }
+    ],
+    "env": {
+        "ALLOWED_HOSTS": {
+            "description": "Array of allowed hostnames",
+            "default":  "['*']"
+        },
+        "STATUS_TOKEN": {
+            "description": "Token to access the status API.",
+            "required": true
+        }
+    }
+}
