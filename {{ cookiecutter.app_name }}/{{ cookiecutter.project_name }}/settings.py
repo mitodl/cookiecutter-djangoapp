@@ -12,9 +12,12 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 import ast
 import os
+import platform
 
 import dj_database_url
 import yaml
+
+VERSION = "0.0.0"
 
 CONFIG_PATHS = [
     os.environ.get('{{ cookiecutter.project_name|upper }}_CONFIG', ''),
@@ -61,9 +64,11 @@ SECRET_KEY = get_var(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_var('DEBUG', True)
+DEBUG = get_var('DEBUG', False)
 
 ALLOWED_HOSTS = get_var('ALLOWED_HOSTS', [])
+
+SECURE_SSL_REDIRECT = get_var('{{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT', True)
 
 
 # Application definition
@@ -118,12 +123,20 @@ WSGI_APPLICATION = '{{ cookiecutter.project_name }}.wsgi.application'
 # Uses DATABASE_URL to configure with sqlite default:
 # For URL structure:
 # https://github.com/kennethreitz/dj-database-url
-DATABASES = {
-    'default': dj_database_url.parse(
-        get_var('DATABASE_URL', 'sqlite:///{0}'.format(
-            os.path.join(BASE_DIR, 'db.sqlite3')
-        ))
+DEFAULT_DATABASE_CONFIG = dj_database_url.parse(
+    get_var(
+        'DATABASE_URL',
+        'sqlite:///{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
     )
+)
+
+if get_var('{{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL', False):
+    DEFAULT_DATABASE_CONFIG['OPTIONS'] = {}
+else:
+    DEFAULT_DATABASE_CONFIG['OPTIONS'] = {'sslmode': 'require'}
+
+DATABASES = {
+    'default': DEFAULT_DATABASE_CONFIG
 }
 
 # Internationalization
@@ -149,3 +162,95 @@ STATIC_ROOT = 'staticfiles'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+# Configure e-mail settings
+EMAIL_BACKEND = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_HOST', 'localhost')
+EMAIL_PORT = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_PORT', 25)
+EMAIL_HOST_USER = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_USER', '')
+EMAIL_HOST_PASSWORD = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_PASSWORD', '')
+EMAIL_USE_TLS = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_TLS', False)
+EMAIL_SUPPORT = get_var('{{ cookiecutter.project_name|upper }}_SUPPORT_EMAIL', 'support@example.com')
+DEFAULT_FROM_EMAIL = get_var('{{ cookiecutter.project_name|upper }}_FROM_EMAIL', 'webmaster@localhost')
+
+# e-mail configurable admins
+ADMIN_EMAIL = get_var('{{ cookiecutter.project_name|upper }}_ADMIN_EMAIL', '')
+if ADMIN_EMAIL is not '':
+    ADMINS = (('Admins', ADMIN_EMAIL),)
+else:
+    ADMINS = ()
+
+# Logging configuration
+LOG_LEVEL = get_var('{{ cookiecutter.project_name|upper }}_LOG_LEVEL', 'DEBUG')
+DJANGO_LOG_LEVEL = get_var('DJANGO_LOG_LEVEL', 'DEBUG')
+
+# For logging to a remote syslog host
+LOG_HOST = get_var('{{ cookiecutter.project_name|upper }}_LOG_HOST', 'localhost')
+LOG_HOST_PORT = get_var('{{ cookiecutter.project_name|upper }}_LOG_HOST_PORT', 514)
+
+HOSTNAME = platform.node().split('.')[0]
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        }
+    },
+    'formatters': {
+        'verbose': {
+            'format': (
+                '[%(asctime)s] %(levelname)s %(process)d [%(name)s] '
+                '%(filename)s:%(lineno)d - '
+                '[{hostname}] - %(message)s'
+            ).format(hostname=HOSTNAME),
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'syslog': {
+            'level': LOG_LEVEL,
+            'class': 'logging.handlers.SysLogHandler',
+            'facility': 'local7',
+            'formatter': 'verbose',
+            'address': (LOG_HOST, LOG_HOST_PORT)
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+    },
+    'loggers': {
+        'root': {
+            'handlers': ['console', 'syslog'],
+            'level': LOG_LEVEL,
+        },
+        '{{ cookiecutter.app_name }}': {
+            'handlers': ['console', 'syslog'],
+            'level': LOG_LEVEL,
+        },
+        'django': {
+            'propagate': True,
+            'level': DJANGO_LOG_LEVEL,
+            'handlers': ['console', 'syslog'],
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': DJANGO_LOG_LEVEL,
+            'propagate': True,
+        },
+        'urllib3': {
+            'level': 'INFO',
+        }
+    },
+}
+
+# status
+STATUS_TOKEN = get_var("STATUS_TOKEN", "")
+HEALTH_CHECK = ['POSTGRES']

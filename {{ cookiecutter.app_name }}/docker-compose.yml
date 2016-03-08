@@ -15,6 +15,8 @@ web:
   environment:
     PORT: {{ cookiecutter.port }}
     DATABASE_URL: postgres://postgres@db:5432/postgres
+    {{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT: 'False'
+    {{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL: 'True'
   ports:
     - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
   links:
