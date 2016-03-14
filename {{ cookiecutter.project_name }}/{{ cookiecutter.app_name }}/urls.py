@@ -8,6 +8,6 @@ urlpatterns = [
     url(
         r'^$',
         TemplateView.as_view(template_name='{{ cookiecutter.app_name }}/index.html'),
-        name='{{ cookiecutter.app_name }}_index'
+        name='{{ cookiecutter.app_name }}-index'
     ),
 ]
