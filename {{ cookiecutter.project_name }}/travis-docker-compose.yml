@@ -9,18 +9,14 @@ web:
     sleep 3 &&
     python3 manage.py migrate &&
     ./with_host.sh python3 manage.py runserver 0.0.0.0:{{ cookiecutter.port }}'
-  volumes:
-    - .:/src
   environment:
-    DEBUG: 'True'
-    NODE_ENV: 'development'
-    PORT: {{ cookiecutter.port }}
+    DEBUG: 'False'
     COVERAGE_DIR: htmlcov
+    PORT: {{ cookiecutter.port }}
+    NODE_ENV: 'production'
     DATABASE_URL: postgres://postgres@db:5432/postgres
-    {{ cookiecutter.project_name|upper }}_USE_WEBPACK_DEV_SERVER: 'True'
     {{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT: 'False'
     {{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL: 'True'
-  env_file: .env
   ports:
     - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
   links:

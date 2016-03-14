@@ -1,0 +1,6 @@
+language: python
+script:
+  - pip install -r test_requirements.txt
+  - tox
+services:
+  - docker
