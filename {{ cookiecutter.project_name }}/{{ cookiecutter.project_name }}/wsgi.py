@@ -1,5 +1,5 @@
 """
-WSGI config for {{ cookiecutter.app_name }} app.
+WSGI config for {{ cookiecutter.project_name }} app.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

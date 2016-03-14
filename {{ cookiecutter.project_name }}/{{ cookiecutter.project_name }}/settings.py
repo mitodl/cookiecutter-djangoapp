@@ -1,5 +1,5 @@
 """
-Django settings for {{ cookiecutter.app_name }} pp. This is just a harness type
+Django settings for {{ cookiecutter.project_name }}. This is just a harness type
 project for testing and interacting with the app.
 
 

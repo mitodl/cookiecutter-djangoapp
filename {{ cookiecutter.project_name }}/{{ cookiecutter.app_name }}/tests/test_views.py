@@ -20,6 +20,6 @@ class TestViews(TestCase):
         response = self.client.get(reverse('{{ cookiecutter.app_name }}-index'))
         self.assertContains(
             response,
-            "Hi, I'm {{ cookiecutter.app_name }}",
+            "Hi, I'm {{ cookiecutter.project_name }}",
             status_code=200
         )
