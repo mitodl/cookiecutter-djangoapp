@@ -1,12 +1,9 @@
 # Core requirements
-
 git
 curl
 libpq-dev
 python3-pip
 python3-dev
-npm
-nodejs
 
 # developer requirements
 postgresql-client

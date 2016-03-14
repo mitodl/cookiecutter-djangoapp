@@ -2,6 +2,7 @@ db:
   image: postgres
   ports:
     - "5432"
+
 web:
   build: .
   command: >
@@ -25,3 +26,19 @@ web:
     - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
   links:
     - db
+
+watch:
+  image: {{ cookiecutter.project_name|replace("_","") }}_web
+  command: >
+    /bin/bash -c '
+    npm cache clean &&
+    npm install --no-bin-links &&
+    npm rebuild node-sass &&
+    echo Finished npm install &&
+    node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.config.dev.js -d --content-base ./static --host 0.0.0.0 --port {{ cookiecutter.webpack_dev_port }} --progress --inline --hot'
+  ports:
+    - "{{ cookiecutter.webpack_dev_port }}:{{ cookiecutter.webpack_dev_port }}"
+  volumes:
+    - .:/src
+  environment:
+    NODE_ENV: 'development'

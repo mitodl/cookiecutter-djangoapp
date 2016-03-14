@@ -164,6 +164,13 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
+# Request files from the webpack dev server
+USE_WEBPACK_DEV_SERVER = get_var('{{ cookiecutter.project_name|upper }}_USE_WEBPACK_DEV_SERVER', False)
+WEBPACK_SERVER_URL = get_var('{{ cookiecutter.project_name|upper }}_WEBPACK_SERVER_URL', 'http://{host}:{{ cookiecutter.webpack_dev_port }}')
+
+# Important to define this so DEBUG works properly
+INTERNAL_IPS = (get_var('HOST_IP', '127.0.0.1'), )
+
 # Configure e-mail settings
 EMAIL_BACKEND = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_HOST', 'localhost')
@@ -255,3 +262,6 @@ LOGGING = {
 # server-status
 STATUS_TOKEN = get_var("STATUS_TOKEN", "")
 HEALTH_CHECK = ['POSTGRES']
+
+GA_TRACKING_ID = get_var("GA_TRACKING_ID", "")
+REACT_GA_DEBUG = get_var("REACT_GA_DEBUG", False)

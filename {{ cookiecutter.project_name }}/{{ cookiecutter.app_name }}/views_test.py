@@ -23,3 +23,21 @@ class TestViews(TestCase):
             "Hi, I'm {{ cookiecutter.project_name }}",
             status_code=200
         )
+
+    def test_webpack_url(self):
+        """Verify that webpack bundle src shows up in production"""
+        for debug, expected_url in [
+                (True, "foo_server/style.js"),
+                (False, "bundles/style.js")
+        ]:
+            with self.settings(
+                DEBUG=debug,
+                USE_WEBPACK_DEV_SERVER=True,
+                WEBPACK_SERVER_URL="foo_server"
+            ):
+                response = self.client.get(reverse('{{ cookiecutter.app_name }}-index'))
+                self.assertContains(
+                    response,
+                    expected_url,
+                    status_code=200
+                )
