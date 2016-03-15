@@ -80,6 +80,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'server_status',
     # Our INSTALLED_APPS
     '{{ cookiecutter.app_name }}'
 )
@@ -251,6 +252,6 @@ LOGGING = {
     },
 }
 
-# status
+# server-status
 STATUS_TOKEN = get_var("STATUS_TOKEN", "")
 HEALTH_CHECK = ['POSTGRES']
