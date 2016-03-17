@@ -5,5 +5,10 @@
 
 {% block content %}
 <h1>{% trans "Hi, I'm {% endraw %}{{ cookiecutter.project_name }}{% raw %}" %}</h1>
+<div id="container"></div>
+<script type="text/javascript">
+var SETTINGS = {{ js_settings_json|safe }};
+</script>
+<script src="{{ root_src }}" type="text/javascript"></script>
 {% endblock %}
 {% endraw %}
