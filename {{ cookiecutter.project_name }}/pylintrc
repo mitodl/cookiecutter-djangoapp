@@ -1,5 +1,6 @@
 [MASTER]
-ignore=migrations
+ignore=migrations,.git
+load-plugins = pylint_django
 
 [BASIC]
 # Allow django's urlpatterns, and our log preference
