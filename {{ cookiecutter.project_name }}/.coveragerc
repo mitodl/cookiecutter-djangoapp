@@ -1,11 +1,9 @@
-
 [run]
 branch = True
 source = .
 data_file=/tmp/coverage
 omit = 
-    ccxcon/wsgi.py
-    apiary_hooks.py
+    {{ cookiecutter.project_name }}/wsgi.py
     manage.py
     ./.tox/*
     */migrations/*
