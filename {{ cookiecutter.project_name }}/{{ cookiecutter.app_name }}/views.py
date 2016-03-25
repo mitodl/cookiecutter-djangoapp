@@ -28,8 +28,10 @@ def index(request):
     The index view. Display available programs
     """
 
+    host = request.get_host().split(":")[0]
     js_settings = {
         "gaTrackingID": settings.GA_TRACKING_ID,
+        "host": host
     }
 
     return render(request, "{{ cookiecutter.app_name }}/index.html", context={
