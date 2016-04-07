@@ -40,5 +40,6 @@ watch:
     - "{{ cookiecutter.webpack_dev_port }}:{{ cookiecutter.webpack_dev_port }}"
   volumes:
     - .:/src
+  env_file: .env
   environment:
     NODE_ENV: 'development'
