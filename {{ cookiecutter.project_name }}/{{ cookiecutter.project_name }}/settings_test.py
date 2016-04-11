@@ -2,7 +2,7 @@
 Validate that our settings functions work, and we can create yaml files
 """
 
-import imp
+import importlib
 import os
 import sys
 import tempfile
@@ -27,9 +27,9 @@ class TestSettings(TestCase):
         Returns:
             dict: dictionary of the newly reloaded settings ``vars``
         """
-        imp.reload(sys.modules['{{ cookiecutter.project_name }}.settings'])
+        importlib.reload(sys.modules['{{ cookiecutter.project_name }}.settings'])
         # Restore settings to original settings after test
-        self.addCleanup(imp.reload, sys.modules['{{ cookiecutter.project_name }}.settings'])
+        self.addCleanup(importlib.reload, sys.modules['{{ cookiecutter.project_name }}.settings'])
         return vars(sys.modules['{{ cookiecutter.project_name }}.settings'])
 
     def test_load_fallback(self):
