@@ -5,3 +5,4 @@ node_modules
 Makefile
 README.rst
 .DS_Store
+.idea/

@@ -44,6 +44,7 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
+coverage/
 
 # Translations
 *.mo
@@ -85,3 +86,5 @@ codekit-config.json
 
 # Django static
 staticfiles/
+
+.venv

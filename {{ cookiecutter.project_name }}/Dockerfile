@@ -8,10 +8,6 @@ COPY apt.txt /tmp/apt.txt
 RUN apt-get update &&\
     apt-get install -y $(grep -vE "^\s*#" apt.txt  | tr "\n" " ")
 
-# node
-RUN curl --silent --location https://deb.nodesource.com/setup_4.x | bash -
-RUN apt-get install nodejs -y
-
 # pip
 RUN curl --silent --location https://bootstrap.pypa.io/get-pip.py | python3 -
 
