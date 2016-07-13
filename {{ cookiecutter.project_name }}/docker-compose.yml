@@ -28,18 +28,15 @@ web:
     - db
 
 watch:
-  image: {{ cookiecutter.project_name|replace("_","") }}_web
+  build: .
+  dockerfile: Dockerfile-node
+  working_dir: /src
   command: >
-    /bin/bash -c '
-    npm cache clean &&
-    npm install --no-bin-links &&
-    npm rebuild node-sass &&
-    echo Finished npm install &&
-    node ./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config webpack.config.dev.js -d --content-base ./static --host 0.0.0.0 --port {{ cookiecutter.webpack_dev_port }} --progress --inline --hot'
+    /bin/bash -c './webpack_dev_server.sh --install'
   ports:
     - "{{ cookiecutter.webpack_dev_port }}:{{ cookiecutter.webpack_dev_port }}"
   volumes:
     - .:/src
-  env_file: .env
   environment:
     NODE_ENV: 'development'
+  env_file: .env

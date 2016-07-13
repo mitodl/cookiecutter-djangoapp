@@ -21,3 +21,15 @@ web:
     - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
   links:
     - db
+
+watch:
+  image: node:6.2
+  working_dir: /src
+  command: >
+    /bin/bash -c './webpack_if_prod.sh'
+  ports:
+    - "{{ cookiecutter.webpack_dev_port }}:{{ cookiecutter.webpack_dev_port }}"
+  volumes:
+    - .:/src
+  environment:
+    NODE_ENV: 'production'
