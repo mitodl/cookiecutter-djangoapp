@@ -14,6 +14,7 @@ omit =
 exclude_lines =
     pragma: no cover
 show_missing = True
+precision = 2
 
 [html]
 directory = ${COVERAGE_DIR}
