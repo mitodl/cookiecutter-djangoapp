@@ -1,35 +1,57 @@
-db:
-  image: postgres
-  ports:
-    - "5432"
-web:
-  build: .
-  command: >
-    /bin/bash -c '
-    sleep 3 &&
-    python3 manage.py migrate &&
-    ./with_host.sh python3 manage.py runserver 0.0.0.0:{{ cookiecutter.port }}'
-  environment:
-    DEBUG: 'False'
-    COVERAGE_DIR: htmlcov
-    PORT: {{ cookiecutter.port }}
-    NODE_ENV: 'production'
-    DATABASE_URL: postgres://postgres@db:5432/postgres
-    {{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT: 'False'
-    {{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL: 'True'
-  ports:
-    - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
-  links:
-    - db
+version: '2'
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432"
 
-watch:
-  image: node:6.2
-  working_dir: /src
-  command: >
-    /bin/bash -c './webpack_if_prod.sh'
-  ports:
-    - "{{ cookiecutter.webpack_dev_port }}:{{ cookiecutter.webpack_dev_port }}"
-  volumes:
-    - .:/src
-  environment:
-    NODE_ENV: 'production'
+  redis:
+    image: redis
+    ports:
+      - "6379"
+
+  python:
+    build:
+      context: .
+      # TODO: upload dockerfile first then uncomment this line
+      # dockerfile: ./travis/Dockerfile-travis-web
+      dockerfile: ./Dockerfile
+    command: /bin/true
+    environment:
+      DEBUG: 'False'
+      COVERAGE_DIR: htmlcov
+      PORT: {{ cookiecutter.port }}
+      NODE_ENV: 'production'
+      DATABASE_URL: postgres://postgres@db:5432/postgres
+      {{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT: 'False'
+      {{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL: 'True'
+      BROKER_URL: redis://redis:6379/4
+      CELERY_RESULT_BACKEND: redis://redis:6379/4
+      XDG_CACHE_HOME: /src/.cache
+    env_file: .env
+
+  web:
+    image: {{ cookiecutter.project_name }}_python
+    extends:
+      service: python
+    command: >
+      /bin/bash -c '
+      sleep 3 &&
+      python3 manage.py migrate &&
+      ./with_host.sh python3 manage.py runserver 0.0.0.0:{{ cookiecutter.port }}'
+    ports:
+      - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
+    links:
+      - db
+
+  celery:
+    image: {{ cookiecutter.project_name }}_python
+    extends:
+      service: python
+    command: >
+      /bin/bash -c '
+      sleep 3;
+      celery -A {{ cookiecutter.project_name }} worker -B -l debug'
+    links:
+      - db
+      - redis

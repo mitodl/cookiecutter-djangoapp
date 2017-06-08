@@ -2,22 +2,16 @@
 Test end to end django views.
 """
 from django.test import TestCase
-from django.test.client import Client
 from django.core.urlresolvers import reverse
 
 
-class TestViews(TestCase):
+class ViewsTest(TestCase):
     """
     Test that the views work as expected.
     """
-    def setUp(self):
-        """Common test setup"""
-        super(TestViews, self).setUp()
-        self.client = Client()
-
     def test_index_view(self):
         """Verify the index view is as expected"""
-        response = self.client.get(reverse('{{ cookiecutter.app_name }}-index'))
+        response = self.client.get(reverse('{{ cookiecutter.project_name }}-index'))
         self.assertContains(
             response,
             "Hi, I'm {{ cookiecutter.project_name }}",
@@ -35,7 +29,7 @@ class TestViews(TestCase):
                 USE_WEBPACK_DEV_SERVER=True,
                 WEBPACK_SERVER_URL="foo_server"
             ):
-                response = self.client.get(reverse('{{ cookiecutter.app_name }}-index'))
+                response = self.client.get(reverse('{{ cookiecutter.project_name }}-index'))
                 self.assertContains(
                     response,
                     expected_url,

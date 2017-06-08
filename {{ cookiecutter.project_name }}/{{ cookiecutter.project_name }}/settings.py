@@ -1,20 +1,21 @@
 """
-Django settings for {{ cookiecutter.project_name }}. This is just a harness type
-project for testing and interacting with the app.
+Django settings for {{ cookiecutter.project_name }}.
 
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.8/topics/settings/
+https://docs.djangoproject.com/en/1.10/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.8/ref/settings/
+https://docs.djangoproject.com/en/1.10/ref/settings/
 
 """
 import ast
+import logging
 import os
 import platform
 
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 import yaml
 
 VERSION = "0.0.0"
@@ -60,15 +61,37 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_var(
     'SECRET_KEY',
-    '{{ cookiecutter.secret_key }}'
+    'terribly_unsafe_default_secret_key'
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_var('DEBUG', False)
 
-ALLOWED_HOSTS = get_var('ALLOWED_HOSTS', [])
+if DEBUG:
+    # Disabling the protection added in 1.10.3 against a DNS rebinding vulnerability:
+    # https://docs.djangoproject.com/en/1.10/releases/1.10.3/#dns-rebinding-vulnerability-when-debug-true
+    # Because we never debug against production data, we are not vulnerable
+    # to this problem.
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = get_var('ALLOWED_HOSTS', [])
 
 SECURE_SSL_REDIRECT = get_var('{{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT', True)
+
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': not DEBUG,
+        'BUNDLE_DIR_NAME': 'bundles/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': [
+            r'.+\.hot-update\.+',
+            r'.+\.js\.map'
+        ]
+    }
+}
 
 
 # Application definition
@@ -81,11 +104,15 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'server_status',
-    # Our INSTALLED_APPS
-    '{{ cookiecutter.app_name }}'
+    # Put our apps after this point
 )
 
+DISABLE_WEBPACK_LOADER_STATS = get_var("DISABLE_WEBPACK_LOADER_STATS", False)
+if not DISABLE_WEBPACK_LOADER_STATS:
+    INSTALLED_APPS += ('webpack_loader',)
+
 MIDDLEWARE_CLASSES = (
+    'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,6 +122,21 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
+
+# enable the nplusone profiler only in debug mode
+if DEBUG:
+    INSTALLED_APPS += (
+        'nplusone.ext.django',
+    )
+    MIDDLEWARE_CLASSES += (
+        'nplusone.ext.django.NPlusOneMiddleware',
+    )
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/'
+LOGIN_ERROR_URL = '/'
 
 ROOT_URLCONF = '{{ cookiecutter.project_name }}.urls'
 
@@ -130,6 +172,7 @@ DEFAULT_DATABASE_CONFIG = dj_database_url.parse(
         'sqlite:///{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
     )
 )
+DEFAULT_DATABASE_CONFIG['CONN_MAX_AGE'] = int(get_var('MICROMASTERS_DB_CONN_MAX_AGE', 0))
 
 if get_var('{{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL', False):
     DEFAULT_DATABASE_CONFIG['OPTIONS'] = {}
@@ -166,7 +209,8 @@ STATICFILES_DIRS = (
 
 # Request files from the webpack dev server
 USE_WEBPACK_DEV_SERVER = get_var('{{ cookiecutter.project_name|upper }}_USE_WEBPACK_DEV_SERVER', False)
-WEBPACK_SERVER_URL = get_var('{{ cookiecutter.project_name|upper }}_WEBPACK_SERVER_URL', 'http://{host}:{{ cookiecutter.webpack_dev_port }}')
+WEBPACK_DEV_SERVER_HOST = get_var('WEBPACK_DEV_SERVER_HOST', '')
+WEBPACK_DEV_SERVER_PORT = get_var('WEBPACK_DEV_SERVER_PORT', '{{ cookiecutter.webpack_dev_port }}')
 
 # Important to define this so DEBUG works properly
 INTERNAL_IPS = (get_var('HOST_IP', '127.0.0.1'), )
@@ -181,22 +225,39 @@ EMAIL_USE_TLS = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_TLS', False
 EMAIL_SUPPORT = get_var('{{ cookiecutter.project_name|upper }}_SUPPORT_EMAIL', 'support@example.com')
 DEFAULT_FROM_EMAIL = get_var('{{ cookiecutter.project_name|upper }}_FROM_EMAIL', 'webmaster@localhost')
 
+MAILGUN_URL = get_var('MAILGUN_URL', 'https://api.mailgun.net/v3/micromasters.mit.edu')
+MAILGUN_KEY = get_var('MAILGUN_KEY', None)
+MAILGUN_BATCH_CHUNK_SIZE = get_var('MAILGUN_BATCH_CHUNK_SIZE', 1000)
+MAILGUN_RECIPIENT_OVERRIDE = get_var('MAILGUN_RECIPIENT_OVERRIDE', None)
+MAILGUN_FROM_EMAIL = get_var('MAILGUN_FROM_EMAIL', 'no-reply@example.com')
+MAILGUN_BCC_TO_EMAIL = get_var('MAILGUN_BCC_TO_EMAIL', 'no-reply@example.com')
+
+
 # e-mail configurable admins
 ADMIN_EMAIL = get_var('{{ cookiecutter.project_name|upper }}_ADMIN_EMAIL', '')
-if ADMIN_EMAIL is not '':
+if ADMIN_EMAIL != '':
     ADMINS = (('Admins', ADMIN_EMAIL),)
 else:
     ADMINS = ()
 
 # Logging configuration
-LOG_LEVEL = get_var('{{ cookiecutter.project_name|upper }}_LOG_LEVEL', 'DEBUG')
-DJANGO_LOG_LEVEL = get_var('DJANGO_LOG_LEVEL', 'DEBUG')
+LOG_LEVEL = get_var('{{ cookiecutter.project_name|upper }}_LOG_LEVEL', 'INFO')
+DJANGO_LOG_LEVEL = get_var('DJANGO_LOG_LEVEL', 'INFO')
 
 # For logging to a remote syslog host
 LOG_HOST = get_var('{{ cookiecutter.project_name|upper }}_LOG_HOST', 'localhost')
 LOG_HOST_PORT = get_var('{{ cookiecutter.project_name|upper }}_LOG_HOST_PORT', 514)
 
 HOSTNAME = platform.node().split('.')[0]
+DEFAULT_LOG_STANZA = {
+    'handlers': ['console', 'syslog'],
+    'level': LOG_LEVEL,
+}
+
+# nplusone profiler logger configuration
+NPLUSONE_LOGGER = logging.getLogger('nplusone')
+NPLUSONE_LOG_LEVEL = logging.ERROR
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -233,16 +294,15 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'formatter': 'verbose'
+        },
     },
     'loggers': {
-        'root': {
-            'handlers': ['console', 'syslog'],
-            'level': LOG_LEVEL,
-        },
-        '{{ cookiecutter.app_name }}': {
-            'handlers': ['console', 'syslog'],
-            'level': LOG_LEVEL,
-        },
+        'root': DEFAULT_LOG_STANZA,
+        '{{ cookiecutter.project_name }}': DEFAULT_LOG_STANZA,
         'django': {
             'propagate': True,
             'level': DJANGO_LOG_LEVEL,
@@ -259,9 +319,114 @@ LOGGING = {
     },
 }
 
+# Sentry
+ENVIRONMENT = get_var('{{ cookiecutter.project_name|upper }}_ENVIRONMENT', 'dev')
+SENTRY_CLIENT = 'raven.contrib.django.raven_compat.DjangoClient'
+RAVEN_CONFIG = {
+    'dsn': get_var('SENTRY_DSN', ''),
+    'environment': ENVIRONMENT,
+    'release': VERSION
+}
+
+# to run the app locally on mac you need to bypass syslog
+if get_var('{{ cookiecutter.project_name|upper }}_BYPASS_SYSLOG', False):
+    LOGGING['handlers'].pop('syslog')
+    LOGGING['loggers']['root']['handlers'] = ['console']
+    LOGGING['loggers']['ui']['handlers'] = ['console']
+    LOGGING['loggers']['django']['handlers'] = ['console']
+
 # server-status
 STATUS_TOKEN = get_var("STATUS_TOKEN", "")
-HEALTH_CHECK = ['POSTGRES']
+HEALTH_CHECK = ['CELERY', 'REDIS', 'POSTGRES']
 
+ADWORDS_CONVERSION_ID = get_var("ADWORDS_CONVERSION_ID", "")
 GA_TRACKING_ID = get_var("GA_TRACKING_ID", "")
 REACT_GA_DEBUG = get_var("REACT_GA_DEBUG", False)
+
+MEDIA_ROOT = get_var('MEDIA_ROOT', '/var/media/')
+MEDIA_URL = '/media/'
+{{ cookiecutter.project_name|upper }}_USE_S3 = get_var('{{ cookiecutter.project_name|upper }}_USE_S3', False)
+AWS_ACCESS_KEY_ID = get_var('AWS_ACCESS_KEY_ID', False)
+AWS_SECRET_ACCESS_KEY = get_var('AWS_SECRET_ACCESS_KEY', False)
+AWS_STORAGE_BUCKET_NAME = get_var('AWS_STORAGE_BUCKET_NAME', False)
+AWS_QUERYSTRING_AUTH = get_var('AWS_QUERYSTRING_AUTH', False)
+# Provide nice validation of the configuration
+if (
+        {{cookiecutter.project_name | upper}}_USE_S3 and
+        (not AWS_ACCESS_KEY_ID or
+         not AWS_SECRET_ACCESS_KEY or
+         not AWS_STORAGE_BUCKET_NAME)
+):
+    raise ImproperlyConfigured(
+        'You have enabled S3 support, but are missing one of '
+        'AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, or '
+        'AWS_STORAGE_BUCKET_NAME'
+    )
+if {{ cookiecutter.project_name|upper }}_USE_S3:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+else:
+    # by default use django.core.files.storage.FileSystemStorage with
+    # overwrite feature
+    DEFAULT_FILE_STORAGE = 'storages.backends.overwrite.OverwriteStorage'
+
+# Celery
+USE_CELERY = True
+BROKER_URL = get_var("BROKER_URL", get_var("REDISCLOUD_URL", None))
+CELERY_RESULT_BACKEND = get_var(
+    "CELERY_RESULT_BACKEND", get_var("REDISCLOUD_URL", None)
+)
+CELERY_ALWAYS_EAGER = get_var("CELERY_ALWAYS_EAGER", False)
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = get_var(
+    "CELERY_EAGER_PROPAGATES_EXCEPTIONS", True)
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TIMEZONE = 'UTC'
+
+
+# django cache back-ends
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'local-in-memory-cache',
+    },
+    'redis': {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": BROKER_URL,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+    },
+}
+
+
+# features flags
+def get_all_config_keys():
+    """Returns all the configuration keys from both environment and configuration files"""
+    return list(set(os.environ.keys()).union(set(FALLBACK_CONFIG.keys())))
+
+{{ cookiecutter.project_name|upper }}_FEATURES_PREFIX = get_var('{{ cookiecutter.project_name|upper }}_FEATURES_PREFIX', 'FEATURE_')
+FEATURES = {
+    key[len({{ cookiecutter.project_name|upper }}_FEATURES_PREFIX):]: get_var(key, None) for key
+    in get_all_config_keys() if key.startswith({{ cookiecutter.project_name|upper }}_FEATURES_PREFIX)
+}
+
+MIDDLEWARE_FEATURE_FLAG_QS_PREFIX = get_var("MIDDLEWARE_FEATURE_FLAG_QS_PREFIX", None)
+MIDDLEWARE_FEATURE_FLAG_COOKIE_NAME = get_var('MIDDLEWARE_FEATURE_FLAG_COOKIE_NAME', '{{ cookiecutter.project_name|upper }}_FEATURE_FLAGS')
+MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS = get_var('MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS', 60 * 60)
+
+if MIDDLEWARE_FEATURE_FLAG_QS_PREFIX:
+    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
+        '{{ cookiecutter.project_name }}.middleware.QueryStringFeatureFlagMiddleware',
+        '{{ cookiecutter.project_name }}.middleware.CookieFeatureFlagMiddleware',
+    )
+
+
+# django debug toolbar only in debug mode
+if DEBUG:
+    INSTALLED_APPS += ('debug_toolbar', )
+    # it needs to be enabled before other middlewares
+    MIDDLEWARE_CLASSES = (
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ) + MIDDLEWARE_CLASSES

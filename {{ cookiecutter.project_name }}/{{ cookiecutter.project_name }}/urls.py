@@ -16,7 +16,14 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
+from {{ cookiecutter.project_name }}.views import index
+
+
 urlpatterns = [
-    url(r'', include('{{ cookiecutter.app_name }}.urls')),
+    url(r'', include('{{ cookiecutter.project_name }}.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^status/', include('server_status.urls')),
+
+    # Example view
+    url(r'^$', index, name='{{ cookiecutter.project_name }}-index'),
 ]

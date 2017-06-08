@@ -73,13 +73,13 @@ param: ``docker-compose up``
 You should now be able to do the following:
 
 1. Visit {{ cookiecutter.project_name }} in your browser on port `{{ cookiecutter.port }}`. _(OSX Only)_ Docker auto-assigns
- the container IP. Run ``docker-machine ip`` to see it. Your Micromasters URL will
+ the container IP. Run ``docker-machine ip`` to see it. Your {{ cookiecutter.project_name }} URL will
  be something like this: ``192.168.99.100:{{ cookiecutter.port }}``.
 
 ## Running Commands and Testing
 
 As shown above, manage commands can be executed on the Docker-contained
-Micromasters app. For example, you can run a Python shell with the following command:
+{{ cookiecutter.project_name }} app. For example, you can run a Python shell with the following command:
 
     docker-compose run web python3 manage.py shell
 
