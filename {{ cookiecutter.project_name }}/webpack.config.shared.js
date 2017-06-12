@@ -4,13 +4,8 @@ const webpack = require("webpack");
 module.exports = {
   config: {
     entry: {
-      'dashboard': ['babel-polyfill', './static/js/entry/dashboard'],
-      'financial_aid': './static/js/financial_aid/functions',
-      'public': ['babel-polyfill', './static/js/entry/public'],
-      'sentry_client': './static/js/entry/sentry_client.js',
+      'root': ['babel-polyfill', './static/js/entry/root'],
       'style': './static/js/entry/style',
-      'style_public': './static/js/entry/style_public',
-      'zendesk_widget': './static/js/entry/zendesk_widget.js',
     },
     module: {
       rules: [
