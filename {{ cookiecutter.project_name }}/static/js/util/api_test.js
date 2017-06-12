@@ -1,31 +1,26 @@
-import assert from 'assert';
-import fetchMock  from 'fetch-mock/src/server';
+/* global SETTINGS: false */
+import { assert } from 'chai';
+import fetchMock from 'fetch-mock/src/server';
 import sinon from 'sinon';
 
 import {
-  patchThing,
   getCookie,
   fetchJSONWithCSRF,
+  fetchWithCSRF,
   csrfSafeMethod,
+  patchThing,
 } from './api';
 import * as api from './api';
-import { THING_RESPONSE } from '../constants';
 
-describe('api', () => {
+describe('api', function() {
+  this.timeout(5000);  // eslint-disable-line no-invalid-this
+
   let sandbox;
-  let savedWindowLocation;
   beforeEach(() => {
     sandbox = sinon.sandbox.create();
-    savedWindowLocation = null;
-    Object.defineProperty(window, "location", {
-      set: value => {
-        savedWindowLocation = value;
-      }
-    });
   });
   afterEach(function() {
     sandbox.restore();
-    fetchMock.restore();
 
     for (let cookie of document.cookie.split(";")) {
       let key = cookie.split("=")[0].trim();
@@ -34,6 +29,10 @@ describe('api', () => {
   });
 
   describe('REST functions', () => {
+    const THING_RESPONSE = {
+      a: "thing"
+    };
+
     let fetchStub;
     beforeEach(() => {
       fetchStub = sandbox.stub(api, 'fetchJSONWithCSRF');
@@ -42,7 +41,7 @@ describe('api', () => {
     it('patches a thing', done => {
       fetchStub.returns(Promise.resolve(THING_RESPONSE));
 
-      patchThing('jane', THING_RESPONSE).then(thing => {
+      return patchThing('jane', THING_RESPONSE).then(thing => {
         assert.ok(fetchStub.calledWith('/api/v0/thing/jane/', {
           method: 'PATCH',
           body: JSON.stringify(THING_RESPONSE)
@@ -54,7 +53,7 @@ describe('api', () => {
 
     it('fails to patch a thing', done => {
       fetchStub.returns(Promise.reject());
-      patchThing('jane', THING_RESPONSE).catch(() => {
+      return patchThing('jane', THING_RESPONSE).catch(() => {
         assert.ok(fetchStub.calledWith('/api/v0/thing/jane/', {
           method: 'PATCH',
           body: JSON.stringify(THING_RESPONSE)
@@ -63,57 +62,171 @@ describe('api', () => {
       });
     });
   });
-  describe('fetchJSONWithCSRF', () => {
-    it('fetches and populates appropriate headers for JSON', done => {
-      document.cookie = "csrftoken=asdf";
-      let expectedJSON = { data: true };
 
-      fetchMock.mock('/url', (url, opts) => {
-        assert.deepEqual(opts, {
-          credentials: "same-origin",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "X-CSRFToken": "asdf"
-          },
-          body: JSON.stringify(expectedJSON),
-          method: "PATCH"
-        });
-        return {status: 200};
-      });
+  describe('fetch functions', () => {
+    const CSRF_TOKEN = 'asdf';
 
-      fetchJSONWithCSRF('/url', {
-        method: 'PATCH',
-        body: JSON.stringify(expectedJSON)
-      }).then(() => {
-        done();
-      });
+    afterEach(() => {
+      fetchMock.restore();
     });
 
-    for (let statusCode of [199, 300, 400, 500, 100]) {
-      it(`rejects the promise if the status code is ${statusCode}`, done => {
-        fetchMock.mock('/url', () => {
-          return { status: statusCode };
+    describe('fetchWithCSRF', () => {
+      beforeEach(() => {
+        document.cookie = `csrftoken=${CSRF_TOKEN}`;
+      });
+
+      it('fetches and populates appropriate headers for GET', () => {
+        let body = "body";
+
+        fetchMock.mock('/url', (url, opts) => {
+          assert.deepEqual(opts, {
+            credentials: "same-origin",
+            headers: {},
+            body: body,
+            method: 'GET'
+          });
+
+          return {
+            status: 200,
+            body: "Some text"
+          };
         });
 
-        fetchJSONWithCSRF('/url').catch(() => {
-          done();
+        return fetchWithCSRF('/url', {
+          body: body
+        }).then(responseBody => {
+          assert.equal(responseBody, "Some text");
         });
       });
-    }
 
-    for (let statusCode of [400, 401]) {
-      it(`redirects to login if we set loginOnError and status = ${statusCode}`, done => {
-        fetchMock.mock('/url', () => {
-          return {status: 400};
+      for (let method of ['PATCH', 'PUT', 'POST']) {
+        it(`fetches and populates appropriate headers for ${method}`, () => {
+          let body = "body";
+
+          fetchMock.mock('/url', (url, opts) => {
+            assert.deepEqual(opts, {
+              credentials: "same-origin",
+              headers: {
+                'X-CSRFToken': CSRF_TOKEN
+              },
+              body: body,
+              method: method
+            });
+
+            return {
+              status: 200,
+              body: "Some text"
+            };
+          });
+
+          return fetchWithCSRF('/url', {
+            body,
+            method,
+          }).then(responseBody => {
+            assert.equal(responseBody, 'Some text');
+          });
+        });
+      }
+
+      for (let statusCode of [300, 400, 500]) {
+        it(`rejects the promise if the status code is ${statusCode}`, () => {
+          fetchMock.get('/url', statusCode);
+          return assert.isRejected(fetchWithCSRF('/url'));
+        });
+      }
+    });
+
+    describe('fetchJSONWithCSRF', () => {
+      it('fetches and populates appropriate headers for JSON', () => {
+        document.cookie = `csrftoken=${CSRF_TOKEN}`;
+        let expectedJSON = {data: true};
+
+        fetchMock.mock('/url', (url, opts) => {
+          assert.deepEqual(opts, {
+            credentials: "same-origin",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "X-CSRFToken": CSRF_TOKEN
+            },
+            body: JSON.stringify(expectedJSON),
+            method: "PATCH"
+          });
+          return {
+            status: 200,
+            body: '{"json": "here"}'
+          };
         });
 
-        fetchJSONWithCSRF('/url', {}, true).catch(() => {
-          assert.equal(savedWindowLocation, '/login/edxorg/');
-          done();
+        return fetchJSONWithCSRF('/url', {
+          method: 'PATCH',
+          body: JSON.stringify(expectedJSON)
+        }).then(responseBody => {
+          assert.deepEqual(responseBody, {
+            "json": "here"
+          });
         });
       });
-    }
+
+      it('handles responses with no data', () => {
+        document.cookie = `csrftoken=${CSRF_TOKEN}`;
+        let expectedJSON = {data: true};
+
+        fetchMock.mock('/url', (url, opts) => {
+          assert.deepEqual(opts, {
+            credentials: "same-origin",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json",
+              "X-CSRFToken": CSRF_TOKEN
+            },
+            body: JSON.stringify(expectedJSON),
+            method: "PATCH"
+          });
+          return {
+            status: 200,
+          };
+        });
+
+        return fetchJSONWithCSRF('/url', {
+          method: 'PATCH',
+          body: JSON.stringify(expectedJSON)
+        }).then(responseBody => {
+          assert.deepEqual(responseBody, {});
+        });
+      });
+
+      for (let statusCode of [300, 400, 500]) {
+        it(`rejects the promise if the status code is ${statusCode}`, () => {
+          fetchMock.mock('/url', {
+            status: statusCode,
+            body: JSON.stringify({
+              error: "an error"
+            })
+          });
+
+          return assert.isRejected(fetchJSONWithCSRF('/url')).then(responseBody => {
+            assert.deepEqual(responseBody, {
+              error: "an error",
+              errorStatusCode: statusCode
+            });
+          });
+        });
+      }
+
+      for (let statusCode of [400, 401]) {
+        it(`redirects to login if we set loginOnError and status = ${statusCode}`, () => {
+          fetchMock.mock('/url', () => {
+            return {status: statusCode};
+          });
+
+          return assert.isRejected(fetchJSONWithCSRF('/url', {}, true)).then(() => {
+            const redirectUrl = `/logout?next=${encodeURIComponent('/login/edxorg/')}`;
+            assert.include(window.location.toString(), redirectUrl);
+          });
+        });
+      }
+    });
   });
 
   describe('getCookie', () => {

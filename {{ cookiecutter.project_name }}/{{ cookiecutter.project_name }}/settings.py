@@ -104,7 +104,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'server_status',
+    'raven.contrib.django.raven_compat',
     # Put our apps after this point
+    '{{ cookiecutter.project_name }}',
 )
 
 DISABLE_WEBPACK_LOADER_STATS = get_var("DISABLE_WEBPACK_LOADER_STATS", False)
@@ -315,6 +317,14 @@ LOGGING = {
         },
         'urllib3': {
             'level': 'INFO',
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': []
+        },
+        'nplusone': {
+            'handlers': ['console'],
+            'level': 'ERROR',
         }
     },
 }

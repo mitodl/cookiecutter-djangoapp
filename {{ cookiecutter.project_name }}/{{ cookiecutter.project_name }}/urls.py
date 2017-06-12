@@ -20,7 +20,6 @@ from {{ cookiecutter.project_name }}.views import index
 
 
 urlpatterns = [
-    url(r'', include('{{ cookiecutter.project_name }}.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^status/', include('server_status.urls')),
 

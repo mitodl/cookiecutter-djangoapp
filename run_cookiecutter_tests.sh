@@ -19,10 +19,12 @@ docker-compose -f travis-docker-compose.yml rm -f
 docker-compose -f travis-docker-compose.yml build
 
 docker-compose -f travis-docker-compose.yml run web tox
-docker-compose -f travis-docker-compose.yml run watch npm install
-docker-compose -f travis-docker-compose.yml run watch npm run-script coverage
-docker-compose -f travis-docker-compose.yml run watch npm run-script lint
-docker-compose -f travis-docker-compose.yml run watch npm run-script flow
+docker-compose run watch yarn install
+docker-compose run watch npm run-script coverage
+docker-compose run watch npm run-script lint
+docker-compose run watch npm run-script flow
 
 # Also make sure webpack runs successfully
-docker-compose -f travis-docker-compose.yml run watch ./webpack_if_prod.sh
+docker-compose run watch ./webpack_if_prod.sh
+
+echo "Success!"

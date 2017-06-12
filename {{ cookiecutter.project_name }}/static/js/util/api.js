@@ -1,9 +1,12 @@
+// @flow
 /* global SETTINGS:false, fetch: false */
 // For mocking purposes we need to use 'fetch' defined as a global instead of importing as a local.
 import 'isomorphic-fetch';
-import _ from 'lodash';
+import R from 'ramda';
 
-export function getCookie(name) {
+import { S, parseJSON, filterE } from './sanctuary';
+
+export function getCookie(name: string): string|null {
   let cookieValue = null;
 
   if (document.cookie && document.cookie !== '') {
@@ -22,10 +25,66 @@ export function getCookie(name) {
   return cookieValue;
 }
 
-export function csrfSafeMethod(method) {
+export function csrfSafeMethod(method: string): boolean {
   // these HTTP methods do not require CSRF protection
   return /^(GET|HEAD|OPTIONS|TRACE)$/.test(method);
 }
+
+const headers = R.merge({ headers: {} });
+
+const method = R.merge({ method: 'GET' });
+
+const credentials = R.merge({ credentials: 'same-origin' });
+
+const setWith = R.curry((path, valFunc, obj) => (
+  R.set(path, valFunc(), obj)
+));
+
+const csrfToken = R.unless(
+  R.compose(csrfSafeMethod, R.prop('method')),
+  setWith(
+    R.lensPath(['headers', 'X-CSRFToken']),
+    () => getCookie('csrftoken')
+  )
+);
+
+const jsonHeaders = R.merge({ headers: {
+  'Content-Type': 'application/json',
+  'Accept': 'application/json'
+}});
+
+const formatRequest = R.compose(
+  csrfToken, credentials, method, headers
+);
+
+const formatJSONRequest = R.compose(formatRequest, jsonHeaders);
+
+const _fetchWithCSRF = async (path: string, init: Object = {}): Promise<*> => {
+  let response = await fetch(path, formatRequest(init));
+  let text = await response.text();
+
+  if (response.status < 200 || response.status >= 300) {
+    return Promise.reject([text, response.status]);
+  }
+  return text;
+};
+
+// allow mocking in tests
+export { _fetchWithCSRF as fetchWithCSRF };
+import { fetchWithCSRF } from './api';
+
+// resolveEither :: Either -> Promise
+// if the Either is a Left, returns Promise.reject(val)
+// if the Either is a Right, returns Promise.resolve(val)
+// where val is the unwrapped value in the Either
+const resolveEither = S.either(
+  val => Promise.reject(val),
+  val => Promise.resolve(val)
+);
+
+const handleEmptyJSON = json => (
+  json.length === 0 ? JSON.stringify({}) : json
+);
 
 /**
  * Calls to fetch but does a few other things:
@@ -34,63 +93,46 @@ export function csrfSafeMethod(method) {
  *  - handle CSRF
  *  - non 2xx status codes will reject the promise returned
  *  - response JSON is returned in place of response
- *
- * @param {string} input URL of fetch
- * @param {Object} init Settings to pass to fetch
- * @param {bool} loginOnError force login on http errors
- * @returns {Promise} The promise with JSON of the response
  */
-export function fetchJSONWithCSRF(input, init, loginOnError) {
-  if (init === undefined) {
-    init = {};
+const _fetchJSONWithCSRF = async (input: string, init: Object = {}, loginOnError: boolean = false): Promise<*> => {
+  let response = await fetch(input, formatJSONRequest(init));
+  // For 400 and 401 errors, force login
+  // the 400 error comes from edX in case there are problems with the refresh
+  // token because the data stored locally is wrong and the solution is only
+  // to force a new login
+  if (loginOnError === true && (response.status === 400 || response.status === 401)) {
+    const relativePath = window.location.pathname + window.location.search;
+    const loginRedirect = `/login/edxorg/?next=${encodeURIComponent(relativePath)}`;
+    window.location = `/logout?next=${encodeURIComponent(loginRedirect)}`;
   }
-  if (loginOnError === undefined) {
-    loginOnError = false;
-  }
-  init.headers = init.headers || {};
-  _.defaults(init.headers, {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  });
 
-  let method = init.method || 'GET';
+  // we pull the text out of the response
+  let text = await response.text();
 
-  if (!csrfSafeMethod(method)) {
-    init.headers['X-CSRFToken'] = getCookie('csrftoken');
-  }
-  // turn on cookies for this domain
-  init.credentials = 'same-origin';
+  // Here we use the `parseJSON` function, which returns an Either.
+  // Left records an error parsing the JSON, and Right success. `filterE` will turn a Right
+  // into a Left based on a boolean function (similar to filtering a Maybe), and we use `bimap`
+  // to merge an error code into a Left. The `resolveEither` function above will resolve a Right
+  // and reject a Left.
+  return R.compose(
+    resolveEither,
+    S.bimap(
+      R.merge({ errorStatusCode: response.status }),
+      R.identity,
+    ),
+    filterE(() => response.ok),
+    parseJSON,
+    handleEmptyJSON,
+  )(text);
+};
 
-  return fetch(input, init).then(response => {
-    // Not using response.json() here since it doesn't handle empty responses
-    // Also note that text is a promise here, not a string
-    let text = response.text();
-
-    // For 400 and 401 errors, force login
-    // the 400 error comes from edX in case there are problems with the refresh
-    // token because the data stored locally is wrong and the solution is only
-    // to force a new login
-    if (loginOnError === true && (response.status === 400 || response.status === 401)) {
-      window.location = '/login/edxorg/';
-    }
-    // For non 2xx status codes reject the promise
-    if (response.status < 200 || response.status >= 300) {
-      return Promise.reject(text);
-    }
-    return text;
-  }).then(text => {
-    if (text.length !== 0) {
-      return JSON.parse(text);
-    } else {
-      return "";
-    }
-  });
-}
+// allow mocking in tests
+export { _fetchJSONWithCSRF as fetchJSONWithCSRF };
+import { fetchJSONWithCSRF } from './api';
 
 // import to allow mocking in tests
-import { fetchJSONWithCSRF as mockableFetchJSONWithCSRF } from './api';
 export function patchThing(username, newThing) {
-  return mockableFetchJSONWithCSRF(`/api/v0/thing/${username}/`, {
+  return fetchJSONWithCSRF(`/api/v0/thing/${username}/`, {
     method: 'PATCH',
     body: JSON.stringify(newThing)
   });
