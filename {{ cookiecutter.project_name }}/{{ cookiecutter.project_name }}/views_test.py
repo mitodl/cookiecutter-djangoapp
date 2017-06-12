@@ -36,4 +36,5 @@ class ViewsTest(TestCase):
         js_settings = json.loads(response.context['js_settings_json'])
         assert js_settings == {
             'gaTrackingID': 'fake',
+            'public_path': '/static/bundles/',
         }

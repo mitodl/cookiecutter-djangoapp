@@ -38,7 +38,7 @@ describe('api', function() {
       fetchStub = sandbox.stub(api, 'fetchJSONWithCSRF');
     });
 
-    it('patches a thing', done => {
+    it('patches a thing', () => {
       fetchStub.returns(Promise.resolve(THING_RESPONSE));
 
       return patchThing('jane', THING_RESPONSE).then(thing => {
@@ -47,18 +47,16 @@ describe('api', function() {
           body: JSON.stringify(THING_RESPONSE)
         }));
         assert.deepEqual(thing, THING_RESPONSE);
-        done();
       });
     });
 
-    it('fails to patch a thing', done => {
+    it('fails to patch a thing', () => {
       fetchStub.returns(Promise.reject());
       return patchThing('jane', THING_RESPONSE).catch(() => {
         assert.ok(fetchStub.calledWith('/api/v0/thing/jane/', {
           method: 'PATCH',
           body: JSON.stringify(THING_RESPONSE)
         }));
-        done();
       });
     });
   });

@@ -16,7 +16,6 @@ docker-compose ps
 docker-compose -f travis-docker-compose.yml kill
 docker-compose -f travis-docker-compose.yml rm -f
 docker-compose -f travis-docker-compose.yml build --no-cache
-#docker-compose -f travis-docker-compose.yml build
 
 docker-compose -f travis-docker-compose.yml run web tox
 docker-compose run watch yarn install

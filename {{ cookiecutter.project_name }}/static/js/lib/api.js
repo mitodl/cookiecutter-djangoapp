@@ -69,9 +69,7 @@ const _fetchWithCSRF = async (path: string, init: Object = {}): Promise<*> => {
   return text;
 };
 
-// allow mocking in tests
 export { _fetchWithCSRF as fetchWithCSRF };
-import { fetchWithCSRF } from './api';
 
 // resolveEither :: Either -> Promise
 // if the Either is a Left, returns Promise.reject(val)
@@ -131,7 +129,7 @@ export { _fetchJSONWithCSRF as fetchJSONWithCSRF };
 import { fetchJSONWithCSRF } from './api';
 
 // import to allow mocking in tests
-export function patchThing(username, newThing) {
+export function patchThing(username: string, newThing: Object) {
   return fetchJSONWithCSRF(`/api/v0/thing/${username}/`, {
     method: 'PATCH',
     body: JSON.stringify(newThing)

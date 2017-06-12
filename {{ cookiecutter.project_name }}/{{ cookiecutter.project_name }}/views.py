@@ -6,6 +6,8 @@ import json
 from django.conf import settings
 from django.shortcuts import render
 
+from {{ cookiecutter.project_name }}.templatetags.render_bundle import public_path
+
 
 def index(request):
     """
@@ -14,6 +16,7 @@ def index(request):
 
     js_settings = {
         "gaTrackingID": settings.GA_TRACKING_ID,
+        "public_path": public_path(request),
     }
 
     return render(request, "index.html", context={
