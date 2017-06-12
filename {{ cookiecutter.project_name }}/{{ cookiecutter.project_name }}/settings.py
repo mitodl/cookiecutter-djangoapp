@@ -174,7 +174,7 @@ DEFAULT_DATABASE_CONFIG = dj_database_url.parse(
         'sqlite:///{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
     )
 )
-DEFAULT_DATABASE_CONFIG['CONN_MAX_AGE'] = int(get_var('MICROMASTERS_DB_CONN_MAX_AGE', 0))
+DEFAULT_DATABASE_CONFIG['CONN_MAX_AGE'] = int(get_var('{{ cookiecutter.project_name|upper }}_DB_CONN_MAX_AGE', 0))
 
 if get_var('{{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL', False):
     DEFAULT_DATABASE_CONFIG['OPTIONS'] = {}
