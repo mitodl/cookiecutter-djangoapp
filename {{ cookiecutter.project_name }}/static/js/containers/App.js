@@ -1,3 +1,4 @@
+// @flow
 import React from 'react';
 import { connect } from 'react-redux';
 import {
@@ -5,6 +6,12 @@ import {
 } from '../actions';
 
 class App extends React.Component {
+  props: {
+    dispatch: () => void,
+    checkbox: {
+      checked: boolean,
+    },
+  };
 
   handleClick(e) {
     const { dispatch } = this.props;
@@ -21,11 +28,6 @@ class App extends React.Component {
     </div>;
   }
 }
-
-App.propTypes = {
-  dispatch: React.PropTypes.func.isRequired,
-  checkbox: React.PropTypes.object.isRequired
-};
 
 const mapStateToProps = (state) => {
   return {

@@ -1,0 +1,11 @@
+{% raw %}{% extends "base.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "{{ cookiecutter.project_name }}" %}{% endblock %}
+
+{% block content %}
+<h1>{% trans "Hi, I'm {% endraw %}{{ cookiecutter.project_name }}{% raw %}" %}</h1>
+<div id="container"></div>
+{% load render_bundle %}
+{% render_bundle 'root' %}
+{% endblock %}{% endraw %}

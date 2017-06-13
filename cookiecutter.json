@@ -1,9 +1,8 @@
 {
   "project_name": "dr_horribles_site",
-  "app_name": "dr_horribles_singalong_blog",
   "repository": "https://github.com/mitodl/dr-horribles-site",
   "description": "Dr. Horrible's Sing-Along Blog is a 2008 musical comedy-drama miniseries in three acts, produced exclusively for Internet distribution.",
-  "port": 8071,
+  "internal_port": 8071,
   "webpack_dev_port": 8072,
-  "secret_key": "36boam8miiz0c22il@3&gputb=wrqr2plah=0#0a_bknw9(2^r"
+  "port": 8073
 }

@@ -6,11 +6,12 @@ import importlib
 import os
 import sys
 import tempfile
+from unittest import mock
 
 from django.conf import settings
 from django.core import mail
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
-import mock
 import semantic_version
 import yaml
 
@@ -80,6 +81,37 @@ class TestSettings(TestCase):
             {'BLAH': True}
         ):
             self.assertEqual(get_var('BLAH', False), True)
+
+    def test_s3_settings(self):
+        """Verify that we enable and configure S3 with a variable"""
+        # Unset, we don't do S3
+        with mock.patch.dict('os.environ', {
+            '{{ cookiecutter.project_name|upper }}_USE_S3': 'False'
+        }, clear=True):
+            settings_vars = self.reload_settings()
+            self.assertNotEqual(
+                settings_vars.get('DEFAULT_FILE_STORAGE'),
+                'storages.backends.s3boto.S3BotoStorage'
+            )
+
+        with self.assertRaises(ImproperlyConfigured):
+            with mock.patch.dict('os.environ', {
+                '{{ cookiecutter.project_name|upper }}_USE_S3': 'True',
+            }, clear=True):
+                self.reload_settings()
+
+        # Verify it all works with it enabled and configured 'properly'
+        with mock.patch.dict('os.environ', {
+            '{{ cookiecutter.project_name|upper }}_USE_S3': 'True',
+            'AWS_ACCESS_KEY_ID': '1',
+            'AWS_SECRET_ACCESS_KEY': '2',
+            'AWS_STORAGE_BUCKET_NAME': '3',
+        }, clear=True):
+            settings_vars = self.reload_settings()
+            self.assertEqual(
+                settings_vars.get('DEFAULT_FILE_STORAGE'),
+                'storages.backends.s3boto.S3BotoStorage'
+            )
 
     def test_admin_settings(self):
         """Verify that we configure email with environment variable"""

@@ -1,7 +1,8 @@
 /* global require:false, module:false */
 import { compose, createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
-import createLogger from 'redux-logger';
+import { createLogger } from 'redux-logger';
+
 import rootReducer from '../reducers';
 
 let createStoreWithMiddleware;
@@ -21,7 +22,7 @@ if (process.env.NODE_ENV !== "production") {
   )(createStore);
 }
 
-export default function configureStore(initialState) {
+export default function configureStore(initialState: Object) {
   const store = createStoreWithMiddleware(rootReducer, initialState);
 
   if (module.hot) {
