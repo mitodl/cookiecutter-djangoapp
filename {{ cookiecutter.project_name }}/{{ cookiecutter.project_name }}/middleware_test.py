@@ -33,7 +33,7 @@ class QueryStringFeatureFlagMiddlewareTest(TestCase):
         self.middleware = QueryStringFeatureFlagMiddleware()
 
     def test_get_flag_key(self):
-        assert self.middleware.get_flag_key('EXAMS') == 'ZZ_FEATURE_EXAMS'
+        assert self.middleware.get_flag_key('EXAMPLE_FEATURE') == 'ZZ_FEATURE_EXAMPLE_FEATURE'
 
     def test_encode_feature_flags(self):
         assert self.middleware.encode_feature_flags(None) == '0'
@@ -42,7 +42,7 @@ class QueryStringFeatureFlagMiddlewareTest(TestCase):
         }) == '0'
 
         assert self.middleware.encode_feature_flags({
-            'ZZ_FEATURE_EXAMS': 1,
+            'ZZ_FEATURE_EXAMPLE_FEATURE': 1,
         }) == '1'
 
     @ddt.data(None, {})
@@ -69,7 +69,7 @@ class QueryStringFeatureFlagMiddlewareTest(TestCase):
     def test_process_request_query(self, redirect_mock):
         request = Mock()
         request.GET = {
-            'ZZ_FEATURE_EXAMS': 1,
+            'ZZ_FEATURE_EXAMPLE_FEATURE': 1,
         }
         request.path = '/dashboard/'
         assert self.middleware.process_request(request) == redirect_mock.return_value
