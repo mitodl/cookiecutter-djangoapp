@@ -33,9 +33,6 @@ This file should be copied from the example in the codebase:
 
     cp .env.example .env
 
-Set the ``EDXORG_BASE_URL``, ``EDXORG_CLIENT_ID``, and ``EDXORG_CLIENT_SECRET``
-variables in the ``.env`` file appropriately.
-
 #### 2) _(OSX only)_ Set up and run the webpack dev server on your host machine
 
 In the development environment, our static assets are served from the webpack
