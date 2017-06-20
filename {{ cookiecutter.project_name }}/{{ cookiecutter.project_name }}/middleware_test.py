@@ -97,7 +97,7 @@ class CookieFeatureFlagMiddlewareTest(TestCase):
 
     def test_decode_feature_flags(self):
         assert self.middleware.decode_feature_flags(0) == set()
-        assert self.middleware.decode_feature_flags(1) == set([FeatureFlag.EXAMS])
+        assert self.middleware.decode_feature_flags(1) == {FeatureFlag.EXAMPLE_FEATURE}
 
     def test_process_request_valid_cookie(self):
         request = Mock()
@@ -106,7 +106,7 @@ class CookieFeatureFlagMiddlewareTest(TestCase):
         }
         request.get_signed_cookie.return_value = 1
         assert self.middleware.process_request(request) is None
-        assert request.{{ cookiecutter.project_name }}_feature_flags == set([FeatureFlag.EXAMS])
+        assert request.{{ cookiecutter.project_name }}_feature_flags == {FeatureFlag.EXAMPLE_FEATURE}
         request.get_signed_cookie.assert_called_once_with(FEATURE_FLAG_COOKIE_NAME)
 
     def test_process_request_invalid_cookie(self):

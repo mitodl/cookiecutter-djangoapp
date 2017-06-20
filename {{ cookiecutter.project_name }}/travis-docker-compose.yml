@@ -25,7 +25,7 @@ services:
       DATABASE_URL: postgres://postgres@db:5432/postgres
       {{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT: 'False'
       {{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL: 'True'
-      BROKER_URL: redis://redis:6379/4
+      CELERY_BROKER_URL: redis://redis:6379/4
       CELERY_RESULT_BACKEND: redis://redis:6379/4
       XDG_CACHE_HOME: /src/.cache
     env_file: .env
