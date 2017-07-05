@@ -19,7 +19,9 @@ docker-compose -f travis-docker-compose.yml build --no-cache
 
 docker-compose -f travis-docker-compose.yml run web tox
 
-docker build -t travis-watch -f ./Dockerfile-node .
-docker run travis-watch bash ./travis/js_tests.sh
+# Copy over travis/js_tests.sh so it gets included in the Dockerfile
+cp -v ./travis/js_tests.sh ./scripts/
+docker build --no-cache -t cookiecutter-test-travis-watch -f ./Dockerfile-node .
+docker run cookiecutter-test-travis-watch /src/scripts/js_tests.sh
 
 echo "Success!"
