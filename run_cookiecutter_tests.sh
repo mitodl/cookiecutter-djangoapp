@@ -18,12 +18,8 @@ docker-compose -f travis-docker-compose.yml rm -f
 docker-compose -f travis-docker-compose.yml build --no-cache
 
 docker-compose -f travis-docker-compose.yml run web tox
-docker-compose -f travis-docker-compose.yml run watch yarn install
-docker-compose -f travis-docker-compose.yml run watch npm run coverage
-docker-compose -f travis-docker-compose.yml run watch npm run lint
-docker-compose -f travis-docker-compose.yml run watch npm run flow
 
-# Also make sure webpack runs successfully
-docker-compose -f travis-docker-compose.yml run watch ./webpack_if_prod.sh
+docker build -t travis-watch -f ./Dockerfile-node .
+docker run travis-watch bash ./travis/js_tests.sh
 
 echo "Success!"
