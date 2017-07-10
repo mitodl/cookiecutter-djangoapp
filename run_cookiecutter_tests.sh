@@ -4,7 +4,8 @@ set -euf -o pipefail
 export TEMPDIR="$(mktemp -d)"
 cookiecutter . -o "$TEMPDIR" --no-input
 
-export TOXINI_DIR=$(find "$TEMPDIR" -name tox.ini -printf '%h\n')
+export TOXINI_DIR="$(find "$TEMPDIR" -name tox.ini -printf '%h\n')"
+export PROJECT_NAME="$(basename "$TOXINI_DIR")"
 cd "$TOXINI_DIR"
 cp "$TOXINI_DIR"/.env.example "$TOXINI_DIR"/.env
 pip-compile
@@ -18,12 +19,11 @@ docker-compose -f travis-docker-compose.yml rm -f
 docker-compose -f travis-docker-compose.yml build --no-cache
 
 docker-compose -f travis-docker-compose.yml run web tox
-docker-compose run watch yarn install
-docker-compose run watch npm run-script coverage
-docker-compose run watch npm run-script lint
-docker-compose run watch npm run-script flow
 
-# Also make sure webpack runs successfully
-docker-compose run watch ./webpack_if_prod.sh
+# Make a fake lock file to avoid a COPY failure in the Dockerfile
+touch yarn.lock
+docker build --no-cache -f ./travis/Dockerfile-travis-watch-build -t mitodl/${PROJECT_NAME}_watch_travis .
+docker build --no-cache -f ./travis/Dockerfile-travis-watch -t travis-watch .
+./travis/js_tests.sh
 
 echo "Success!"
