@@ -85,9 +85,7 @@ class TestSettings(TestCase):
         """Verify that we can enable/disable database SSL with a var"""
 
         # Check default state is SSL on
-        with mock.patch.dict('os.environ', {
-            '{{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL': ''
-        }, clear=True):
+        with mock.patch.dict('os.environ', {}, clear=True):
             settings_vars = self.reload_settings()
             self.assertEqual(
                 settings_vars['DATABASES']['default']['OPTIONS'],
