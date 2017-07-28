@@ -1,57 +1,22 @@
 """
 Django settings for {{ cookiecutter.project_name }}.
-
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.10/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.10/ref/settings/
-
 """
-import ast
 import logging
 import os
 import platform
 
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
-import yaml
+
+from {{ cookiecutter.project_name }}.envs import (
+    get_any,
+    get_bool,
+    get_int,
+    get_list_of_str,
+    get_string,
+)
 
 VERSION = "0.0.0"
-
-CONFIG_PATHS = [
-    os.environ.get('{{ cookiecutter.project_name|upper }}_CONFIG', ''),
-    os.path.join(os.getcwd(), '{{ cookiecutter.project_name|lower }}.yml'),
-    os.path.join(os.path.expanduser('~'), '{{ cookiecutter.project_name|lower }}.yml'),
-    '/etc/{{ cookiecutter.project_name|lower }}.yml',
-]
-
-
-def load_fallback():
-    """Load optional yaml config"""
-    fallback_config = {}
-    config_file_path = None
-    for config_path in CONFIG_PATHS:
-        if os.path.isfile(config_path):
-            config_file_path = config_path
-            break
-    if config_file_path is not None:
-        with open(config_file_path) as config_file:
-            fallback_config = yaml.safe_load(config_file)
-    return fallback_config
-
-FALLBACK_CONFIG = load_fallback()
-
-
-def get_var(name, default):
-    """Return the settings in a precedence way with default."""
-    try:
-        value = os.environ.get(name, FALLBACK_CONFIG.get(name, default))
-        return ast.literal_eval(value)
-    except (SyntaxError, ValueError):
-        return value
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -59,13 +24,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_var(
+SECRET_KEY = get_string(
     'SECRET_KEY',
     'terribly_unsafe_default_secret_key'
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = get_var('DEBUG', False)
+DEBUG = get_bool('DEBUG', False)
 
 if DEBUG:
     # Disabling the protection added in 1.10.3 against a DNS rebinding vulnerability:
@@ -74,9 +39,9 @@ if DEBUG:
     # to this problem.
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = get_var('ALLOWED_HOSTS', [])
+    ALLOWED_HOSTS = get_list_of_str('ALLOWED_HOSTS', [])
 
-SECURE_SSL_REDIRECT = get_var('{{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT', True)
+SECURE_SSL_REDIRECT = get_bool('{{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT', True)
 
 
 WEBPACK_LOADER = {
@@ -109,7 +74,7 @@ INSTALLED_APPS = (
     '{{ cookiecutter.project_name }}',
 )
 
-DISABLE_WEBPACK_LOADER_STATS = get_var("DISABLE_WEBPACK_LOADER_STATS", False)
+DISABLE_WEBPACK_LOADER_STATS = get_bool("DISABLE_WEBPACK_LOADER_STATS", False)
 if not DISABLE_WEBPACK_LOADER_STATS:
     INSTALLED_APPS += ('webpack_loader',)
 
@@ -169,14 +134,14 @@ WSGI_APPLICATION = '{{ cookiecutter.project_name }}.wsgi.application'
 # For URL structure:
 # https://github.com/kennethreitz/dj-database-url
 DEFAULT_DATABASE_CONFIG = dj_database_url.parse(
-    get_var(
+    get_string(
         'DATABASE_URL',
         'sqlite:///{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
     )
 )
-DEFAULT_DATABASE_CONFIG['CONN_MAX_AGE'] = int(get_var('{{ cookiecutter.project_name|upper }}_DB_CONN_MAX_AGE', 0))
+DEFAULT_DATABASE_CONFIG['CONN_MAX_AGE'] = get_int('{{ cookiecutter.project_name|upper }}_DB_CONN_MAX_AGE', 0)
 
-if get_var('{{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL', False):
+if get_bool('{{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL', False):
     DEFAULT_DATABASE_CONFIG['OPTIONS'] = {}
 else:
     DEFAULT_DATABASE_CONFIG['OPTIONS'] = {'sslmode': 'require'}
@@ -210,45 +175,45 @@ STATICFILES_DIRS = (
 )
 
 # Request files from the webpack dev server
-USE_WEBPACK_DEV_SERVER = get_var('{{ cookiecutter.project_name|upper }}_USE_WEBPACK_DEV_SERVER', False)
-WEBPACK_DEV_SERVER_HOST = get_var('WEBPACK_DEV_SERVER_HOST', '')
-WEBPACK_DEV_SERVER_PORT = get_var('WEBPACK_DEV_SERVER_PORT', '{{ cookiecutter.webpack_dev_port }}')
+USE_WEBPACK_DEV_SERVER = get_bool('{{ cookiecutter.project_name|upper }}_USE_WEBPACK_DEV_SERVER', False)
+WEBPACK_DEV_SERVER_HOST = get_string('WEBPACK_DEV_SERVER_HOST', '')
+WEBPACK_DEV_SERVER_PORT = get_int('WEBPACK_DEV_SERVER_PORT', {{ cookiecutter.webpack_dev_port }})
 
 # Important to define this so DEBUG works properly
-INTERNAL_IPS = (get_var('HOST_IP', '127.0.0.1'), )
+INTERNAL_IPS = (get_string('HOST_IP', '127.0.0.1'), )
 
 # Configure e-mail settings
-EMAIL_BACKEND = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_HOST', 'localhost')
-EMAIL_PORT = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_PORT', 25)
-EMAIL_HOST_USER = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_USER', '')
-EMAIL_HOST_PASSWORD = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_PASSWORD', '')
-EMAIL_USE_TLS = get_var('{{ cookiecutter.project_name|upper }}_EMAIL_TLS', False)
-EMAIL_SUPPORT = get_var('{{ cookiecutter.project_name|upper }}_SUPPORT_EMAIL', 'support@example.com')
-DEFAULT_FROM_EMAIL = get_var('{{ cookiecutter.project_name|upper }}_FROM_EMAIL', 'webmaster@localhost')
+EMAIL_BACKEND = get_string('{{ cookiecutter.project_name|upper }}_EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = get_string('{{ cookiecutter.project_name|upper }}_EMAIL_HOST', 'localhost')
+EMAIL_PORT = get_int('{{ cookiecutter.project_name|upper }}_EMAIL_PORT', 25)
+EMAIL_HOST_USER = get_string('{{ cookiecutter.project_name|upper }}_EMAIL_USER', '')
+EMAIL_HOST_PASSWORD = get_string('{{ cookiecutter.project_name|upper }}_EMAIL_PASSWORD', '')
+EMAIL_USE_TLS = get_bool('{{ cookiecutter.project_name|upper }}_EMAIL_TLS', False)
+EMAIL_SUPPORT = get_string('{{ cookiecutter.project_name|upper }}_SUPPORT_EMAIL', 'support@example.com')
+DEFAULT_FROM_EMAIL = get_string('{{ cookiecutter.project_name|upper }}_FROM_EMAIL', 'webmaster@localhost')
 
-MAILGUN_URL = get_var('MAILGUN_URL', 'https://api.mailgun.net/v3/micromasters.mit.edu')
-MAILGUN_KEY = get_var('MAILGUN_KEY', None)
-MAILGUN_BATCH_CHUNK_SIZE = get_var('MAILGUN_BATCH_CHUNK_SIZE', 1000)
-MAILGUN_RECIPIENT_OVERRIDE = get_var('MAILGUN_RECIPIENT_OVERRIDE', None)
-MAILGUN_FROM_EMAIL = get_var('MAILGUN_FROM_EMAIL', 'no-reply@example.com')
-MAILGUN_BCC_TO_EMAIL = get_var('MAILGUN_BCC_TO_EMAIL', 'no-reply@example.com')
+MAILGUN_URL = get_string('MAILGUN_URL', 'https://api.mailgun.net/v3/micromasters.mit.edu')
+MAILGUN_KEY = get_string('MAILGUN_KEY', None)
+MAILGUN_BATCH_CHUNK_SIZE = get_int('MAILGUN_BATCH_CHUNK_SIZE', 1000)
+MAILGUN_RECIPIENT_OVERRIDE = get_string('MAILGUN_RECIPIENT_OVERRIDE', None)
+MAILGUN_FROM_EMAIL = get_string('MAILGUN_FROM_EMAIL', 'no-reply@example.com')
+MAILGUN_BCC_TO_EMAIL = get_string('MAILGUN_BCC_TO_EMAIL', 'no-reply@example.com')
 
 
 # e-mail configurable admins
-ADMIN_EMAIL = get_var('{{ cookiecutter.project_name|upper }}_ADMIN_EMAIL', '')
+ADMIN_EMAIL = get_string('{{ cookiecutter.project_name|upper }}_ADMIN_EMAIL', '')
 if ADMIN_EMAIL != '':
     ADMINS = (('Admins', ADMIN_EMAIL),)
 else:
     ADMINS = ()
 
 # Logging configuration
-LOG_LEVEL = get_var('{{ cookiecutter.project_name|upper }}_LOG_LEVEL', 'INFO')
-DJANGO_LOG_LEVEL = get_var('DJANGO_LOG_LEVEL', 'INFO')
+LOG_LEVEL = get_string('{{ cookiecutter.project_name|upper }}_LOG_LEVEL', 'INFO')
+DJANGO_LOG_LEVEL = get_string('DJANGO_LOG_LEVEL', 'INFO')
 
 # For logging to a remote syslog host
-LOG_HOST = get_var('{{ cookiecutter.project_name|upper }}_LOG_HOST', 'localhost')
-LOG_HOST_PORT = get_var('{{ cookiecutter.project_name|upper }}_LOG_HOST_PORT', 514)
+LOG_HOST = get_string('{{ cookiecutter.project_name|upper }}_LOG_HOST', 'localhost')
+LOG_HOST_PORT = get_int('{{ cookiecutter.project_name|upper }}_LOG_HOST_PORT', 514)
 
 HOSTNAME = platform.node().split('.')[0]
 DEFAULT_LOG_STANZA = {
@@ -330,36 +295,36 @@ LOGGING = {
 }
 
 # Sentry
-ENVIRONMENT = get_var('{{ cookiecutter.project_name|upper }}_ENVIRONMENT', 'dev')
+ENVIRONMENT = get_string('{{ cookiecutter.project_name|upper }}_ENVIRONMENT', 'dev')
 SENTRY_CLIENT = 'raven.contrib.django.raven_compat.DjangoClient'
 RAVEN_CONFIG = {
-    'dsn': get_var('SENTRY_DSN', ''),
+    'dsn': get_string('SENTRY_DSN', ''),
     'environment': ENVIRONMENT,
     'release': VERSION
 }
 
 # to run the app locally on mac you need to bypass syslog
-if get_var('{{ cookiecutter.project_name|upper }}_BYPASS_SYSLOG', False):
+if get_bool('{{ cookiecutter.project_name|upper }}_BYPASS_SYSLOG', False):
     LOGGING['handlers'].pop('syslog')
     LOGGING['loggers']['root']['handlers'] = ['console']
     LOGGING['loggers']['ui']['handlers'] = ['console']
     LOGGING['loggers']['django']['handlers'] = ['console']
 
 # server-status
-STATUS_TOKEN = get_var("STATUS_TOKEN", "")
+STATUS_TOKEN = get_string("STATUS_TOKEN", "")
 HEALTH_CHECK = ['CELERY', 'REDIS', 'POSTGRES']
 
-ADWORDS_CONVERSION_ID = get_var("ADWORDS_CONVERSION_ID", "")
-GA_TRACKING_ID = get_var("GA_TRACKING_ID", "")
-REACT_GA_DEBUG = get_var("REACT_GA_DEBUG", False)
+ADWORDS_CONVERSION_ID = get_string("ADWORDS_CONVERSION_ID", "")
+GA_TRACKING_ID = get_string("GA_TRACKING_ID", "")
+REACT_GA_DEBUG = get_bool("REACT_GA_DEBUG", False)
 
-MEDIA_ROOT = get_var('MEDIA_ROOT', '/var/media/')
+MEDIA_ROOT = get_string('MEDIA_ROOT', '/var/media/')
 MEDIA_URL = '/media/'
-{{ cookiecutter.project_name|upper }}_USE_S3 = get_var('{{ cookiecutter.project_name|upper }}_USE_S3', False)
-AWS_ACCESS_KEY_ID = get_var('AWS_ACCESS_KEY_ID', False)
-AWS_SECRET_ACCESS_KEY = get_var('AWS_SECRET_ACCESS_KEY', False)
-AWS_STORAGE_BUCKET_NAME = get_var('AWS_STORAGE_BUCKET_NAME', False)
-AWS_QUERYSTRING_AUTH = get_var('AWS_QUERYSTRING_AUTH', False)
+{{ cookiecutter.project_name|upper }}_USE_S3 = get_bool('{{ cookiecutter.project_name|upper }}_USE_S3', False)
+AWS_ACCESS_KEY_ID = get_string('AWS_ACCESS_KEY_ID', False)
+AWS_SECRET_ACCESS_KEY = get_string('AWS_SECRET_ACCESS_KEY', False)
+AWS_STORAGE_BUCKET_NAME = get_string('AWS_STORAGE_BUCKET_NAME', False)
+AWS_QUERYSTRING_AUTH = get_string('AWS_QUERYSTRING_AUTH', False)
 # Provide nice validation of the configuration
 if (
         {{cookiecutter.project_name | upper}}_USE_S3 and
@@ -381,12 +346,12 @@ else:
 
 # Celery
 USE_CELERY = True
-CELERY_BROKER_URL = get_var("CELERY_BROKER_URL", get_var("REDISCLOUD_URL", None))
-CELERY_RESULT_BACKEND = get_var(
-    "CELERY_RESULT_BACKEND", get_var("REDISCLOUD_URL", None)
+CELERY_BROKER_URL = get_string("CELERY_BROKER_URL", get_string("REDISCLOUD_URL", None))
+CELERY_RESULT_BACKEND = get_string(
+    "CELERY_RESULT_BACKEND", get_string("REDISCLOUD_URL", None)
 )
-CELERY_TASK_ALWAYS_EAGER = get_var("CELERY_TASK_ALWAYS_EAGER", False)
-CELERY_TASK_EAGER_PROPAGATES = get_var("CELERY_TASK_EAGER_PROPAGATES", True)
+CELERY_TASK_ALWAYS_EAGER = get_bool("CELERY_TASK_ALWAYS_EAGER", False)
+CELERY_TASK_EAGER_PROPAGATES = get_bool("CELERY_TASK_EAGER_PROPAGATES", True)
 
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
@@ -413,17 +378,20 @@ CACHES = {
 # features flags
 def get_all_config_keys():
     """Returns all the configuration keys from both environment and configuration files"""
-    return list(set(os.environ.keys()).union(set(FALLBACK_CONFIG.keys())))
+    return list(os.environ.keys())
 
-{{ cookiecutter.project_name|upper }}_FEATURES_PREFIX = get_var('{{ cookiecutter.project_name|upper }}_FEATURES_PREFIX', 'FEATURE_')
+{{ cookiecutter.project_name|upper }}_FEATURES_PREFIX = get_string('{{ cookiecutter.project_name|upper }}_FEATURES_PREFIX', 'FEATURE_')
 FEATURES = {
-    key[len({{ cookiecutter.project_name|upper }}_FEATURES_PREFIX):]: get_var(key, None) for key
+    key[len({{ cookiecutter.project_name|upper }}_FEATURES_PREFIX):]: get_any(key, None) for key
     in get_all_config_keys() if key.startswith({{ cookiecutter.project_name|upper }}_FEATURES_PREFIX)
 }
 
-MIDDLEWARE_FEATURE_FLAG_QS_PREFIX = get_var("MIDDLEWARE_FEATURE_FLAG_QS_PREFIX", None)
-MIDDLEWARE_FEATURE_FLAG_COOKIE_NAME = get_var('MIDDLEWARE_FEATURE_FLAG_COOKIE_NAME', '{{ cookiecutter.project_name|upper }}_FEATURE_FLAGS')
-MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS = get_var('MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS', 60 * 60)
+MIDDLEWARE_FEATURE_FLAG_QS_PREFIX = get_string("MIDDLEWARE_FEATURE_FLAG_QS_PREFIX", None)
+MIDDLEWARE_FEATURE_FLAG_COOKIE_NAME = get_string(
+    'MIDDLEWARE_FEATURE_FLAG_COOKIE_NAME',
+    '{{ cookiecutter.project_name|upper }}_FEATURE_FLAGS',
+)
+MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS = get_int('MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS', 60 * 60)
 
 if MIDDLEWARE_FEATURE_FLAG_QS_PREFIX:
     MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
