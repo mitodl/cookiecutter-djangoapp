@@ -2,7 +2,7 @@
 import { combineReducers } from 'redux';
 import type { Action } from '../flow/reduxTypes';
 import {
-    UPDATE_CHECKBOX
+  UPDATE_CHECKBOX
 } from '../actions';
 
 export type CheckboxType = {
