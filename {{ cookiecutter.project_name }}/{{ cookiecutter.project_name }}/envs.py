@@ -1,5 +1,4 @@
 """Functions reading and parsing environment variables"""
-from ast import literal_eval
 import os
 
 from django.core.exceptions import ImproperlyConfigured
@@ -75,42 +74,6 @@ def get_int(name, default):
             name=name,
             value=value,
         )) from ex
-
-    return parsed_value
-
-
-def get_list_of_str(name, default):
-    """
-    Get an environment variable as a list of strings.
-
-    Args:
-        name (str): An environment variable name
-        default (list): The default value to use if the environment variable doesn't exist.
-
-    Returns:
-        list of str:
-            The environment variable value parsed as a list of strings
-    """
-    value = os.environ.get(name)
-    if value is None:
-        return default
-
-    parse_exception = EnvironmentVariableParseException("Expected value in {name}={value} to be a list of str".format(
-        name=name,
-        value=value,
-    ))
-
-    try:
-        parsed_value = literal_eval(value)
-    except (ValueError, SyntaxError) as ex:
-        raise parse_exception from ex
-
-    if not isinstance(parsed_value, list):
-        raise parse_exception
-
-    for item in parsed_value:
-        if not isinstance(item, str):
-            raise parse_exception
 
     return parsed_value
 
