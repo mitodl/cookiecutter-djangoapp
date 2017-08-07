@@ -8,7 +8,6 @@ from {{ cookiecutter.project_name }}.envs import (
     get_any,
     get_bool,
     get_int,
-    get_list_of_str,
     get_string,
 )
 
@@ -101,22 +100,3 @@ def test_get_bool():
                 )
 
         assert get_int('missing', 'default') == 'default'
-
-
-def test_get_list_of_str():
-    """
-    get_list_of_str should parse a list of strings
-    """
-    with patch('{{ cookiecutter.project_name }}.envs.os', environ=FAKE_ENVIRONS):
-        assert get_list_of_str('list_of_str', ['noth', 'ing']) == ['x', 'y', 'z']
-
-        for key, value in FAKE_ENVIRONS.items():
-            if key != 'list_of_str':
-                with pytest.raises(EnvironmentVariableParseException) as ex:
-                    get_list_of_str(key, ['noth', 'ing'])
-                assert ex.value.args[0] == 'Expected value in {key}={value} to be a list of str'.format(
-                    key=key,
-                    value=value,
-                )
-
-        assert get_list_of_str('missing', 'default') == 'default'

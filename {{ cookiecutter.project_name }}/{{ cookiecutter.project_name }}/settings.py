@@ -12,7 +12,6 @@ from {{ cookiecutter.project_name }}.envs import (
     get_any,
     get_bool,
     get_int,
-    get_list_of_str,
     get_string,
 )
 
@@ -32,14 +31,7 @@ SECRET_KEY = get_string(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_bool('DEBUG', False)
 
-if DEBUG:
-    # Disabling the protection added in 1.10.3 against a DNS rebinding vulnerability:
-    # https://docs.djangoproject.com/en/1.10/releases/1.10.3/#dns-rebinding-vulnerability-when-debug-true
-    # Because we never debug against production data, we are not vulnerable
-    # to this problem.
-    ALLOWED_HOSTS = ['*']
-else:
-    ALLOWED_HOSTS = get_list_of_str('ALLOWED_HOSTS', [])
+ALLOWED_HOSTS = ['*']
 
 SECURE_SSL_REDIRECT = get_bool('{{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT', True)
 
@@ -314,7 +306,6 @@ if get_bool('{{ cookiecutter.project_name|upper }}_BYPASS_SYSLOG', False):
 STATUS_TOKEN = get_string("STATUS_TOKEN", "")
 HEALTH_CHECK = ['CELERY', 'REDIS', 'POSTGRES']
 
-ADWORDS_CONVERSION_ID = get_string("ADWORDS_CONVERSION_ID", "")
 GA_TRACKING_ID = get_string("GA_TRACKING_ID", "")
 REACT_GA_DEBUG = get_bool("REACT_GA_DEBUG", False)
 
