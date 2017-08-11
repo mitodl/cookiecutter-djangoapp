@@ -19,7 +19,6 @@ services:
       - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
     links:
       - web
-      - watch
 
   python:
     build: .
