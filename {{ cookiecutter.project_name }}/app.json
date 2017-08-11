@@ -126,7 +126,7 @@
   "name": "{{ cookiecutter.project_name }}",
   "repository": "{{ cookiecutter.repository }}",
   "scripts": {
-    "postdeploy": "./manage.py migrate"
+    "postdeploy": "./manage.py migrate --noinput"
   },
   "success_url": "/",
   "website": "{{ cookiecutter.repository }}"
