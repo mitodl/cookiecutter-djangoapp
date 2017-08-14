@@ -19,7 +19,6 @@ services:
       - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
     links:
       - web
-      - watch
 
   python:
     build: .
@@ -52,7 +51,8 @@ services:
     command: >
       /bin/bash -c '
       sleep 3 &&
-      python3 manage.py migrate --no-input &&
+      python3 manage.py collectstatic --noinput &&
+      python3 manage.py migrate --noinput &&
       uwsgi uwsgi.ini'
     ports:
       - "{{ cookiecutter.internal_port }}:{{ cookiecutter.internal_port }}"
