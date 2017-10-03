@@ -212,10 +212,6 @@ LOG_HOST = get_string('{{ cookiecutter.project_name|upper }}_LOG_HOST', 'localho
 LOG_HOST_PORT = get_int('{{ cookiecutter.project_name|upper }}_LOG_HOST_PORT', 514)
 
 HOSTNAME = platform.node().split('.')[0]
-DEFAULT_LOG_STANZA = {
-    'handlers': ['console', 'syslog'],
-    'level': LOG_LEVEL,
-}
 
 # nplusone profiler logger configuration
 NPLUSONE_LOGGER = logging.getLogger('nplusone')
@@ -223,7 +219,7 @@ NPLUSONE_LOG_LEVEL = logging.ERROR
 
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
@@ -264,8 +260,10 @@ LOGGING = {
         },
     },
     'loggers': {
-        'root': DEFAULT_LOG_STANZA,
-        '{{ cookiecutter.project_name }}': DEFAULT_LOG_STANZA,
+        'root': {
+            'handlers': ['console', 'syslog'],
+            'level': LOG_LEVEL,
+        },
         'django': {
             'propagate': True,
             'level': DJANGO_LOG_LEVEL,
@@ -275,9 +273,6 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': DJANGO_LOG_LEVEL,
             'propagate': True,
-        },
-        'urllib3': {
-            'level': 'INFO',
         },
         'raven': {
             'level': 'DEBUG',
