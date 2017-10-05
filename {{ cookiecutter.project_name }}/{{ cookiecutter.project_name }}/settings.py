@@ -260,10 +260,6 @@ LOGGING = {
         },
     },
     'loggers': {
-        'root': {
-            'handlers': ['console', 'syslog'],
-            'level': LOG_LEVEL,
-        },
         'django': {
             'propagate': True,
             'level': DJANGO_LOG_LEVEL,
@@ -282,6 +278,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'ERROR',
         }
+    },
+    'root': {
+        'handlers': ['console', 'syslog'],
+        'level': LOG_LEVEL,
     },
 }
 
