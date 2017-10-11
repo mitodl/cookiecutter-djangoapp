@@ -6,6 +6,7 @@ import importlib
 import sys
 from unittest import mock
 
+import ddt
 from django.conf import settings
 from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
@@ -19,6 +20,7 @@ REQUIRED_SETTINGS = {
 }
 
 
+@ddt.ddt
 class TestSettings(TestCase):
     """Validate that settings work as expected."""
 
@@ -123,6 +125,15 @@ class TestSettings(TestCase):
                 settings_vars['DATABASES']['default']['OPTIONS'],
                 {'sslmode': 'require'}
             )
+
+    @ddt.data(*REQUIRED_SETTINGS.keys())
+    def test_required(self, missing_param):
+        """An ImproperlyConfigured exception should be raised for each param missing here"""
+        with mock.patch.dict('os.environ', {
+            **REQUIRED_SETTINGS,
+            missing_param: '',
+        }, clear=True), self.assertRaises(ImproperlyConfigured):
+            self.reload_settings()
 
     @staticmethod
     def test_semantic_version():
