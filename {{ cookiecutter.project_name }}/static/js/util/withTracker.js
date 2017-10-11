@@ -14,7 +14,9 @@ const withTracker = (WrappedComponent: Class<React.Component<*, *, *>>) => {
 
   const HOC = (props: Object) => {
     const page = props.location.pathname;
-    ga.pageview(page);
+    if (SETTINGS.gaTrackingID) {
+      ga.pageview(page);
+    }
     return (
       <WrappedComponent {...props} />
     );
