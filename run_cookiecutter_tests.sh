@@ -14,11 +14,11 @@ pip-compile
 docker-compose ps
 
 # Make sure we start with a fresh container
-docker-compose -f travis-docker-compose.yml kill
-docker-compose -f travis-docker-compose.yml rm -f
-docker-compose -f travis-docker-compose.yml build --no-cache
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml kill
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml rm -f
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml build --no-cache
 
-docker-compose -f travis-docker-compose.yml run web tox
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web tox
 
 # Make a lock file to avoid a COPY failure in the Dockerfile
 yarn install
