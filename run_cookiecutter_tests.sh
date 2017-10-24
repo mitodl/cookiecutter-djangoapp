@@ -20,8 +20,8 @@ docker-compose -f travis-docker-compose.yml build --no-cache
 
 docker-compose -f travis-docker-compose.yml run web tox
 
-# Make a fake lock file to avoid a COPY failure in the Dockerfile
-touch yarn.lock
+# Make a lock file to avoid a COPY failure in the Dockerfile
+yarn install
 docker build --no-cache -f ./travis/Dockerfile-travis-watch-build -t mitodl/${PROJECT_NAME}_watch_travis .
 docker build --no-cache -f ./travis/Dockerfile-travis-watch -t travis-watch .
 ./travis/js_tests.sh
