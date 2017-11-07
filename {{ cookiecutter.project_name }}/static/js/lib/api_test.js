@@ -45,7 +45,7 @@ describe("api", function() {
         assert.ok(
           fetchStub.calledWith("/api/v0/thing/jane/", {
             method: "PATCH",
-            body: JSON.stringify(THING_RESPONSE)
+            body:   JSON.stringify(THING_RESPONSE)
           })
         )
         assert.deepEqual(thing, THING_RESPONSE)
@@ -58,7 +58,7 @@ describe("api", function() {
         assert.ok(
           fetchStub.calledWith("/api/v0/thing/jane/", {
             method: "PATCH",
-            body: JSON.stringify(THING_RESPONSE)
+            body:   JSON.stringify(THING_RESPONSE)
           })
         )
       })
@@ -83,14 +83,14 @@ describe("api", function() {
         fetchMock.mock("/url", (url, opts) => {
           assert.deepEqual(opts, {
             credentials: "same-origin",
-            headers: {},
-            body: body,
-            method: "GET"
+            headers:     {},
+            body:        body,
+            method:      "GET"
           })
 
           return {
             status: 200,
-            body: "Some text"
+            body:   "Some text"
           }
         })
 
@@ -108,16 +108,16 @@ describe("api", function() {
           fetchMock.mock("/url", (url, opts) => {
             assert.deepEqual(opts, {
               credentials: "same-origin",
-              headers: {
+              headers:     {
                 "X-CSRFToken": CSRF_TOKEN
               },
-              body: body,
+              body:   body,
               method: method
             })
 
             return {
               status: 200,
-              body: "Some text"
+              body:   "Some text"
             }
           })
 
@@ -146,23 +146,23 @@ describe("api", function() {
         fetchMock.mock("/url", (url, opts) => {
           assert.deepEqual(opts, {
             credentials: "same-origin",
-            headers: {
-              Accept: "application/json",
+            headers:     {
+              Accept:         "application/json",
               "Content-Type": "application/json",
-              "X-CSRFToken": CSRF_TOKEN
+              "X-CSRFToken":  CSRF_TOKEN
             },
-            body: JSON.stringify(expectedJSON),
+            body:   JSON.stringify(expectedJSON),
             method: "PATCH"
           })
           return {
             status: 200,
-            body: '{"json": "here"}'
+            body:   '{"json": "here"}'
           }
         })
 
         return fetchJSONWithCSRF("/url", {
           method: "PATCH",
-          body: JSON.stringify(expectedJSON)
+          body:   JSON.stringify(expectedJSON)
         }).then(responseBody => {
           assert.deepEqual(responseBody, {
             json: "here"
@@ -177,12 +177,12 @@ describe("api", function() {
         fetchMock.mock("/url", (url, opts) => {
           assert.deepEqual(opts, {
             credentials: "same-origin",
-            headers: {
-              Accept: "application/json",
+            headers:     {
+              Accept:         "application/json",
               "Content-Type": "application/json",
-              "X-CSRFToken": CSRF_TOKEN
+              "X-CSRFToken":  CSRF_TOKEN
             },
-            body: JSON.stringify(expectedJSON),
+            body:   JSON.stringify(expectedJSON),
             method: "PATCH"
           })
           return {
@@ -192,7 +192,7 @@ describe("api", function() {
 
         return fetchJSONWithCSRF("/url", {
           method: "PATCH",
-          body: JSON.stringify(expectedJSON)
+          body:   JSON.stringify(expectedJSON)
         }).then(responseBody => {
           assert.deepEqual(responseBody, {})
         })
@@ -202,7 +202,7 @@ describe("api", function() {
         it(`rejects the promise if the status code is ${statusCode}`, () => {
           fetchMock.mock("/url", {
             status: statusCode,
-            body: JSON.stringify({
+            body:   JSON.stringify({
               error: "an error"
             })
           })
@@ -211,7 +211,7 @@ describe("api", function() {
             .isRejected(fetchJSONWithCSRF("/url"))
             .then(responseBody => {
               assert.deepEqual(responseBody, {
-                error: "an error",
+                error:           "an error",
                 errorStatusCode: statusCode
               })
             })
@@ -219,7 +219,9 @@ describe("api", function() {
       }
 
       for (const statusCode of [400, 401]) {
-        it(`redirects to login if we set loginOnError and status = ${statusCode}`, () => {
+        it(`redirects to login if we set loginOnError and status = ${
+          statusCode
+        }`, () => {
           fetchMock.mock("/url", () => {
             return { status: statusCode }
           })
