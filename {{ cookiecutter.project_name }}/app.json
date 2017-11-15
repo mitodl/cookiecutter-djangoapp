@@ -81,6 +81,11 @@
     "{{ cookiecutter.project_name|upper }}_FROM_EMAIL": {
       "description": "E-mail to use for the from field"
     },
+    "{{ cookiecutter.project_name|upper }}_LOG_LEVEL": {
+      "description": "The logging level for the application",
+      "required": true,
+      "value": "INFO"
+    },
     "{{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT": {
       "description": "Application-level SSL redirect setting.",
       "required": false,
