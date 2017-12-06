@@ -91,7 +91,7 @@ def _render_tags(bundle):
     for chunk in bundle:
         if chunk['name'].endswith(('.js', '.js.gz')):
             tags.append((
-                '<script type="text/javascript" src="{}"></script>'
+                '<script type="text/javascript" src="{}" ></script>'
             ).format(chunk['url']))
         elif chunk['name'].endswith(('.css', '.css.gz')):
             tags.append((
