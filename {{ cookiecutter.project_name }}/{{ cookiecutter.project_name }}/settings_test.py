@@ -7,6 +7,7 @@ import sys
 from unittest import mock
 
 import ddt
+from django.apps import apps
 from django.conf import settings
 from django.core import mail
 from django.core.exceptions import ImproperlyConfigured
@@ -46,12 +47,13 @@ class TestSettings(TestCase):
                 'storages.backends.s3boto.S3BotoStorage'
             )
 
+        with mock.patch.dict('os.environ', {
+            **REQUIRED_SETTINGS,
+            '{{ cookiecutter.project_name|upper }}_USE_S3': 'True',
+        }, clear=True):
+            self.reload_settings()
         with self.assertRaises(ImproperlyConfigured):
-            with mock.patch.dict('os.environ', {
-                **REQUIRED_SETTINGS,
-                '{{ cookiecutter.project_name|upper }}_USE_S3': 'True',
-            }, clear=True):
-                self.reload_settings()
+            apps.get_app_config('{{ cookiecutter.project_name }}').ready()
 
         # Verify it all works with it enabled and configured 'properly'
         with mock.patch.dict('os.environ', {
@@ -132,8 +134,11 @@ class TestSettings(TestCase):
         with mock.patch.dict('os.environ', {
             **REQUIRED_SETTINGS,
             missing_param: '',
-        }, clear=True), self.assertRaises(ImproperlyConfigured):
+        }, clear=True):
             self.reload_settings()
+
+        with self.assertRaises(ImproperlyConfigured):
+            apps.get_app_config('{{ cookiecutter.project_name }}').ready()
 
     @staticmethod
     def test_semantic_version():

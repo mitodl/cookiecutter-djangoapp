@@ -10,12 +10,13 @@ class RootConfig(AppConfig):
     """AppConfig for this project"""
     name = '{{ cookiecutter.project_name }}'
 
-    missing_settings = [
-        setting_name for setting_name in settings.MANDATORY_SETTINGS
-        if getattr(settings, setting_name, None) in (None, '')
-    ]
+    def ready(self):
+        missing_settings = [
+            setting_name for setting_name in settings.MANDATORY_SETTINGS
+            if getattr(settings, setting_name, None) in (None, '')
+        ]
 
-    if missing_settings:
-        raise ImproperlyConfigured(
-            'The following settings are missing: {}'.format(', '.join(missing_settings))
-        )
+        if missing_settings:
+            raise ImproperlyConfigured(
+                'The following settings are missing: {}'.format(', '.join(missing_settings))
+            )
