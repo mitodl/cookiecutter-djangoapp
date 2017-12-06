@@ -23,10 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_string(
-    'SECRET_KEY',
-    'terribly_unsafe_default_secret_key'
-)
+SECRET_KEY = get_string('SECRET_KEY', None)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_bool('DEBUG', False)
@@ -398,4 +395,5 @@ if DEBUG:
 MANDATORY_SETTINGS = [
     'MAILGUN_URL',
     'MAILGUN_KEY',
+    'SECRET_KEY',
 ]
