@@ -219,9 +219,7 @@ describe("api", function() {
       }
 
       for (const statusCode of [400, 401]) {
-        it(`redirects to login if we set loginOnError and status = ${
-          statusCode
-        }`, () => {
+        it(`redirects to login if we set loginOnError and status = ${statusCode}`, () => {
           fetchMock.mock("/url", () => {
             return { status: statusCode }
           })
