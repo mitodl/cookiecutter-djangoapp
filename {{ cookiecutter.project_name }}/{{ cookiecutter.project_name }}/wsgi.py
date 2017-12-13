@@ -10,8 +10,7 @@ import os
 
 from raven.contrib.django.raven_compat.middleware.wsgi import Sentry
 from django.core.wsgi import get_wsgi_application
-from dj_static import Cling
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{ cookiecutter.project_name }}.settings")
 
-application = Cling(Sentry(get_wsgi_application()))  # pylint: disable=invalid-name
+application = Sentry(get_wsgi_application())  # pylint: disable=invalid-name

@@ -23,10 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_string(
-    'SECRET_KEY',
-    'terribly_unsafe_default_secret_key'
-)
+SECRET_KEY = get_string('SECRET_KEY', None)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = get_bool('DEBUG', False)
@@ -70,16 +67,15 @@ DISABLE_WEBPACK_LOADER_STATS = get_bool("DISABLE_WEBPACK_LOADER_STATS", False)
 if not DISABLE_WEBPACK_LOADER_STATS:
     INSTALLED_APPS += ('webpack_loader',)
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
+    'django.middleware.security.SecurityMiddleware',
     'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
 )
 
 # enable the nplusone profiler only in debug mode
@@ -87,7 +83,7 @@ if DEBUG:
     INSTALLED_APPS += (
         'nplusone.ext.django',
     )
-    MIDDLEWARE_CLASSES += (
+    MIDDLEWARE += (
         'nplusone.ext.django.NPlusOneMiddleware',
     )
 
@@ -185,11 +181,7 @@ EMAIL_SUPPORT = get_string('{{ cookiecutter.project_name|upper }}_SUPPORT_EMAIL'
 DEFAULT_FROM_EMAIL = get_string('{{ cookiecutter.project_name|upper }}_FROM_EMAIL', 'webmaster@localhost')
 
 MAILGUN_URL = get_string('MAILGUN_URL', None)
-if not MAILGUN_URL:
-    raise ImproperlyConfigured("MAILGUN_URL not set")
 MAILGUN_KEY = get_string('MAILGUN_KEY', None)
-if not MAILGUN_KEY:
-    raise ImproperlyConfigured("MAILGUN_KEY not set")
 MAILGUN_BATCH_CHUNK_SIZE = get_int('MAILGUN_BATCH_CHUNK_SIZE', 1000)
 MAILGUN_RECIPIENT_OVERRIDE = get_string('MAILGUN_RECIPIENT_OVERRIDE', None)
 MAILGUN_FROM_EMAIL = get_string('MAILGUN_FROM_EMAIL', 'no-reply@example.com')
@@ -385,7 +377,7 @@ MIDDLEWARE_FEATURE_FLAG_COOKIE_NAME = get_string(
 MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS = get_int('MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS', 60 * 60)
 
 if MIDDLEWARE_FEATURE_FLAG_QS_PREFIX:
-    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
+    MIDDLEWARE = MIDDLEWARE + (
         '{{ cookiecutter.project_name }}.middleware.QueryStringFeatureFlagMiddleware',
         '{{ cookiecutter.project_name }}.middleware.CookieFeatureFlagMiddleware',
     )
@@ -395,6 +387,14 @@ if MIDDLEWARE_FEATURE_FLAG_QS_PREFIX:
 if DEBUG:
     INSTALLED_APPS += ('debug_toolbar', )
     # it needs to be enabled before other middlewares
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ) + MIDDLEWARE_CLASSES
+    ) + MIDDLEWARE
+
+# List of mandatory settings. If any of these is not set, the app will not start
+# and will raise an ImproperlyConfigured exception
+MANDATORY_SETTINGS = [
+    'MAILGUN_URL',
+    'MAILGUN_KEY',
+    'SECRET_KEY',
+]
