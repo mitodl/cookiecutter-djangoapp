@@ -1,4 +1,4 @@
-FROM node:8.5
+FROM node:9.3
 LABEL maintainer "ODL DevOps <mitx-devops@mit.edu>"
 
 # this dockerfile builds the hub image for the watch container

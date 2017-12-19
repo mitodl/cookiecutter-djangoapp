@@ -1,3 +1,6 @@
+# temporary pin to workaround a bug
+astroid==1.5.3 # fix https://github.com/PyCQA/pylint/issues/1609
+
 bpython
 codecov
 ddt

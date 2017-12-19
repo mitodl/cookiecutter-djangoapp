@@ -6,7 +6,6 @@ import { createMemoryHistory } from "history"
 import configureTestStore from "redux-asserts"
 
 import Router, { routes } from "../Router"
-import * as api from "../lib/api"
 import rootReducer from "../reducers"
 import type { Action } from "../flow/reduxTypes"
 import type { TestStore } from "../flow/reduxTypes"
@@ -20,18 +19,12 @@ export default class IntegrationTestHelper {
   browserHistory: History
 
   constructor() {
-    this.sandbox = sinon.sandbox.create()
+    this.sandbox = sinon.createSandbox({})
     this.store = configureTestStore((...args) => {
       // uncomment to listen on dispatched actions
       // console.log(args);
       return rootReducer(...args)
     })
-
-    // we need this to deal with the 'endpoint' objects, it's now necessary
-    // to directly mock out the fetch call because at module load time the
-    // endpoint object already holds a reference to the unmocked API function
-    // (e.g. getCoupons) which Sinon doesn't seem to be able to deal with.
-    this.fetchJSONWithCSRFStub = this.sandbox.stub(api, "fetchJSONWithCSRF")
 
     this.listenForActions = this.store.createListenForActions()
     this.dispatchThen = this.store.createDispatchThen()
