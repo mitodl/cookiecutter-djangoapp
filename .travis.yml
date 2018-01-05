@@ -1,8 +1,11 @@
 language: python
 python:
   - "3.6"
-script:
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y jq
   - pip install -r test_requirements.txt
+script:
   - tox
 services:
   - docker

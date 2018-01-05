@@ -18,6 +18,7 @@ import semantic_version
 REQUIRED_SETTINGS = {
     'MAILGUN_URL': 'http://fake.mailgun.url',
     'MAILGUN_KEY': 'fake_mailgun_key',
+    'DATABASE_URL': 'postgres://fakepostgres@fakedb:5432/fakepostgres',
 }
 
 
@@ -127,7 +128,7 @@ class TestSettings(TestCase):
                 {'sslmode': 'require'}
             )
 
-    @ddt.data(*REQUIRED_SETTINGS.keys())
+    @ddt.data(*(set(REQUIRED_SETTINGS.keys()) - {'DATABASE_URL'}))
     def test_required(self, missing_param):
         """An ImproperlyConfigured exception should be raised for each param missing here"""
         with self.settings(**{
