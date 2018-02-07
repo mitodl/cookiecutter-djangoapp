@@ -5,7 +5,7 @@ import type { Match } from "react-router"
 
 import CheckboxPage from "./CheckboxPage"
 
-export default class App extends React.Component {
+export default class App extends React.Component<*, void> {
   props: {
     match: Match
   }
