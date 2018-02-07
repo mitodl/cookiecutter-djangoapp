@@ -2,13 +2,13 @@
 import React from "react"
 import { connect } from "react-redux"
 import type { Match } from "react-router"
-import type { Action } from "redux"
+import type { Dispatch } from "redux"
 
 import { updateCheckbox } from "../actions"
 
-class CheckboxPage extends React.Component {
+class CheckboxPage extends React.Component<*, void> {
   props: {
-    dispatch: (action: Action) => void,
+    dispatch: Dispatch<*>,
     checkbox: {
       checked: boolean
     },
