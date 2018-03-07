@@ -77,7 +77,7 @@ services:
     command: >
       /bin/bash -c '
       sleep 3;
-      celery -A {{ cookiecutter.project_name }} worker -B -l {% raw %}${{% endraw %}{{ cookiecutter.project_name|upper }}{% raw %}_LOG_LEVEL:-INFO}{% endraw %}'
+      celery -A {{ cookiecutter.project_name }}.celery:app worker -B -l {% raw %}${{% endraw %}{{ cookiecutter.project_name|upper }}{% raw %}_LOG_LEVEL:-INFO}{% endraw %}'
     links:
       - db
       - redis
