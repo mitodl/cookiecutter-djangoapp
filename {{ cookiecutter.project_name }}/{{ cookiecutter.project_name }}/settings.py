@@ -247,7 +247,7 @@ LOGGING = {
         'django': {
             'propagate': True,
             'level': DJANGO_LOG_LEVEL,
-            'handlers': ['console', 'syslog'],
+            'handlers': ['console', 'syslog', 'sentry'],
         },
         'django.request': {
             'handlers': ['mail_admins'],
@@ -264,7 +264,7 @@ LOGGING = {
         }
     },
     'root': {
-        'handlers': ['console', 'syslog'],
+        'handlers': ['console', 'syslog', 'sentry'],
         'level': LOG_LEVEL,
     },
 }
@@ -277,13 +277,6 @@ RAVEN_CONFIG = {
     'environment': ENVIRONMENT,
     'release': VERSION
 }
-
-# to run the app locally on mac you need to bypass syslog
-if get_bool('{{ cookiecutter.project_name|upper }}_BYPASS_SYSLOG', False):
-    LOGGING['handlers'].pop('syslog')
-    LOGGING['loggers']['root']['handlers'] = ['console']
-    LOGGING['loggers']['ui']['handlers'] = ['console']
-    LOGGING['loggers']['django']['handlers'] = ['console']
 
 # server-status
 STATUS_TOKEN = get_string("STATUS_TOKEN", "")
