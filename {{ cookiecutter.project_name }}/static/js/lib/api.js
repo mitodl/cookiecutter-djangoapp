@@ -39,7 +39,10 @@ const credentials = R.merge({ credentials: "same-origin" })
 const setWith = R.curry((path, valFunc, obj) => R.set(path, valFunc(), obj))
 
 const csrfToken = R.unless(
-  R.compose(csrfSafeMethod, R.prop("method")),
+  R.compose(
+    csrfSafeMethod,
+    R.prop("method")
+  ),
   setWith(R.lensPath(["headers", "X-CSRFToken"]), () => getCookie("csrftoken"))
 )
 
@@ -50,9 +53,17 @@ const jsonHeaders = R.merge({
   }
 })
 
-const formatRequest = R.compose(csrfToken, credentials, method, headers)
+const formatRequest = R.compose(
+  csrfToken,
+  credentials,
+  method,
+  headers
+)
 
-const formatJSONRequest = R.compose(formatRequest, jsonHeaders)
+const formatJSONRequest = R.compose(
+  formatRequest,
+  jsonHeaders
+)
 
 const _fetchWithCSRF = async (path: string, init: Object = {}): Promise<*> => {
   const response = await fetch(path, formatRequest(init))
