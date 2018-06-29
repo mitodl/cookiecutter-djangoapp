@@ -1,3 +1,9 @@
 {
-  "extends": "eslint-config-mitodl"
+  "extends": "eslint-config-mitodl",
+  "settings": {
+    "react": {
+      "version": "16.4.0",
+      "flowVersion": "0.75.0"
+    }
+  }
 }
