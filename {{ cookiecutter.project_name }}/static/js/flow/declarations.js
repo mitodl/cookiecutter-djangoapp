@@ -6,6 +6,9 @@ declare var SETTINGS: {
     [key: string]: boolean,
   },
   reactGaDebug: string,
+  sentry_dsn: string,
+  release_version: string,
+  environment: string,
 };
 
 // mocha

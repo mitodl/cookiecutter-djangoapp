@@ -2,40 +2,43 @@
 Test end to end django views.
 """
 import json
-from unittest.mock import patch
 
-from django.test import TestCase
 from django.urls import reverse
+import pytest
 
 
-class ViewsTest(TestCase):
-    """
-    Test that the views work as expected.
-    """
-    def test_index_view(self):
-        """Verify the index view is as expected"""
-        response = self.client.get(reverse('{{ cookiecutter.project_name }}-index'))
-        self.assertContains(
-            response,
-            "Hi, I'm {{ cookiecutter.project_name }}",
-            status_code=200
-        )
+pytestmark = [
+    pytest.mark.django_db,
+]
 
-    def test_webpack_url(self):
-        """Verify that webpack bundle src shows up in production"""
-        with self.settings(
-            GA_TRACKING_ID='fake',
-        ), patch('{{ cookiecutter.project_name }}.templatetags.render_bundle._get_bundle') as get_bundle:
-            response = self.client.get(reverse('{{ cookiecutter.project_name }}-index'))
 
-        bundles = [bundle[0][1] for bundle in get_bundle.call_args_list]
-        assert set(bundles) == {
-            'common',
-            'root',
-            'style',
-        }
-        js_settings = json.loads(response.context['js_settings_json'])
-        assert js_settings == {
-            'gaTrackingID': 'fake',
-            'public_path': '/static/bundles/',
-        }
+def test_index_view(client):
+    """Verify the index view is as expected"""
+    response = client.get(reverse('{{ cookiecutter.project_name }}-index'))
+    assert response.status_code == 200
+    assert "Hi, I'm {{ cookiecutter.project_name }}" in response.content
+
+
+def test_webpack_url(mocker, settings, client):
+    """Verify that webpack bundle src shows up in production"""
+    settings.GA_TRACKING_ID = 'fake'
+    settings.ENVIRONMENT = 'test'
+    settings.VERSION = '4.5.6'
+    get_bundle = mocker.patch('{{ cookiecutter.project_name }}.templatetags.render_bundle._get_bundle')
+
+    response = client.get(reverse('{{ cookiecutter.project_name }}-index'))
+
+    bundles = [bundle[0][1] for bundle in get_bundle.call_args_list]
+    assert set(bundles) == {
+        'common',
+        'root',
+        'style',
+    }
+    js_settings = json.loads(response.context['js_settings_json'])
+    assert js_settings == {
+        'gaTrackingID': 'fake',
+        'public_path': '/static/bundles/',
+        'environment': settings.ENVIRONMENT,
+        'sentry_dsn': None,
+        'release_version': settings.VERSION,
+    }
