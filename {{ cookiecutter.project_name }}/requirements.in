@@ -1,5 +1,5 @@
-django==2.0
-celery==4.1.0
+django==2.0.8
+celery==4.2.0
 dj-database-url==0.4.2
 django-redis==4.7.0
 django-server-status==0.4.0
