@@ -26,7 +26,7 @@ app.use(devMiddleware(compiler, {
 
 app.use(hotMiddleware(compiler));
 
-app.listen({{ cookiecutter.webpack_dev_port }}, (err) => {
+app.listen(port, (err) => {
   if (err) {
     return console.error(err)
   }
