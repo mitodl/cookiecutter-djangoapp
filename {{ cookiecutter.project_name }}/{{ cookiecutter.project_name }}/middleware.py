@@ -117,4 +117,3 @@ class CookieFeatureFlagMiddleware(MiddlewareMixin):
             request (django.http.request.Request): the request to inspect
         """
         request.{{ cookiecutter.project_name }}_feature_flags = self.get_feature_flags(request)
-        return None
