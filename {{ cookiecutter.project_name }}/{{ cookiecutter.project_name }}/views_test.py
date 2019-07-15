@@ -24,6 +24,7 @@ def test_webpack_url(mocker, settings, client):
     settings.GA_TRACKING_ID = 'fake'
     settings.ENVIRONMENT = 'test'
     settings.VERSION = '4.5.6'
+    settings.USE_WEBPACK_DEV_SERVER = False
     get_bundle = mocker.patch('{{ cookiecutter.project_name }}.templatetags.render_bundle._get_bundle')
 
     response = client.get(reverse('{{ cookiecutter.project_name }}-index'))

@@ -1,5 +1,4 @@
-astroid==2.0.4
-black==18.9b0
+black
 bpython
 codecov
 ddt
@@ -8,13 +7,11 @@ ipdb
 nplusone
 pdbpp
 pip-tools
-pylint==2.1.1
-pylint-django==2.0.2
+pylint
+pylint-django
 pytest
 pytest-cov
 pytest-django
-pytest-pep8
 pytest-mock
-pytest-pylint==0.12.3
+pytest-pylint
 semantic-version
-tox

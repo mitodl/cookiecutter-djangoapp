@@ -1,4 +1,21 @@
-version: '2.1'
+version: '3.7'
+
+x-environment:
+  &py-enviroment
+  DEBUG: 'False'
+  NODE_ENV: 'production'
+  DEV_ENV: 'True'  # necessary to have nginx connect to web container
+  SECRET_KEY: local_unsafe_key
+  COVERAGE_DIR: htmlcov
+  DATABASE_URL: postgres://postgres@db:5432/postgres
+  {{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT: 'False'
+  {{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL: 'True'
+  CELERY_TASK_ALWAYS_EAGER: 'False'
+  CELERY_BROKER_URL: redis://redis:6379/4
+  CELERY_RESULT_BACKEND: redis://redis:6379/4
+  DOCKER_HOST: ${DOCKER_HOST:-missing}
+  WEBPACK_DEV_SERVER_HOST: ${WEBPACK_DEV_SERVER_HOST:-localhost}
+
 services:
   db:
     image: postgres
@@ -16,33 +33,15 @@ services:
       - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
     links:
       - web
-
-  python:
+    networks:
+      default:
+        aliases:
+          # this ensures that containers route this hostname back to the web app
+          - "xpro.odl.local"
+  web:
     build:
       context: .
       dockerfile: Dockerfile
-    command: /bin/true
-    environment:
-      DEBUG: 'False'
-      NODE_ENV: 'production'
-      DEV_ENV: 'True'  # necessary to have nginx connect to web container
-      PORT: {{ cookiecutter.internal_port }}
-      COVERAGE_DIR: htmlcov
-      DATABASE_URL: postgres://postgres@db:5432/postgres
-      {{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT: 'False'
-      {{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL: 'True'
-      ELASTICSEARCH_URL: elastic:9200
-      CELERY_TASK_ALWAYS_EAGER: 'False'
-      CELERY_BROKER_URL: redis://redis:6379/4
-      CELERY_RESULT_BACKEND: redis://redis:6379/4
-      DOCKER_HOST: ${DOCKER_HOST:-missing}
-      WEBPACK_DEV_SERVER_HOST: ${WEBPACK_DEV_SERVER_HOST:-localhost}
-    env_file: .env
-
-  web:
-    image: {{ cookiecutter.project_name }}_python
-    extends:
-      service: python
     command: >
       /bin/bash -c '
       sleep 3 &&
@@ -51,6 +50,10 @@ services:
       uwsgi uwsgi.ini'
     ports:
       - "{{ cookiecutter.internal_port }}:{{ cookiecutter.internal_port }}"
+    environment:
+      << : *py-enviroment
+      PORT: {{ cookiecutter.internal_port }}
+    env_file: .env
     links:
       - db
       - redis
@@ -71,9 +74,11 @@ services:
     env_file: .env
 
   celery:
-    image: {{ cookiecutter.project_name }}_python
-    extends:
-      service: python
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment: *py-enviroment
+    env_file: .env
     command: >
       /bin/bash -c '
       sleep 3;

@@ -4,3 +4,5 @@ curl
 libjpeg-dev
 zlib1g-dev
 net-tools
+libpq-dev
+postgresql-client
