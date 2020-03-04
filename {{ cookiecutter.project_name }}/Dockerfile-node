@@ -7,8 +7,6 @@ COPY package.json /src/
 
 COPY scripts /src/scripts
 
-RUN node /src/scripts/install_yarn.js
-
 RUN mkdir -p /home/node/.cache/yarn
 
 RUN chown node:node /home/node/.cache/yarn
