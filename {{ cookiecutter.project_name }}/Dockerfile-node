@@ -10,6 +10,7 @@ COPY scripts /src/scripts
 RUN mkdir -p /home/node/.cache/yarn
 
 RUN chown node:node /home/node/.cache/yarn
+RUN chown node:node /src/
 
 USER node
 

@@ -32,12 +32,11 @@ docker-compose ps
 # Make sure we start with a fresh container
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml kill
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml rm -f
-docker-compose -f docker-compose.yml -f docker-compose.travis.yml up db &  # create database
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml build --no-cache
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web pytest
 
 echo "Installing packages..."
-docker-compose -f docker-compose.yml -f docker-compose.travis.yml run watch yarn install
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml run watch bash -c 'yarn install && ./travis/js_tests.sh'
 echo "Running JS tests..."
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml run watch ./travis/js_tests.sh
 
