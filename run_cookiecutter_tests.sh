@@ -32,8 +32,8 @@ docker-compose ps
 # Make sure we start with a fresh container
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml kill
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml rm -f
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml up db &  # create database
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml build --no-cache
-docker-compose -f docker-compose.yml -f docker-compose.travis.yml run db echo  # create database
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web pytest
 
 echo "Installing packages..."
