@@ -35,14 +35,9 @@ docker-compose -f docker-compose.yml -f docker-compose.travis.yml rm -f
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml build --no-cache
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web pytest
 
-# Make a lock file to avoid a COPY failure in the Dockerfile
-# First, install the right versions of node and yarn
-echo "Installing yarn..."
-node ./scripts/install_yarn.js
 echo "Installing packages..."
-yarn install
-docker build --no-cache -f ./travis/Dockerfile-travis-watch-build -t mitodl/${PROJECT_NAME}_watch_travis .
-docker build --no-cache -f ./travis/Dockerfile-travis-watch -t travis-watch .
-./travis/js_tests.sh
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml run watch yarn install
+echo "Running JS tests..."
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml run watch ./travis/js_tests.sh
 
 echo "Success!"
