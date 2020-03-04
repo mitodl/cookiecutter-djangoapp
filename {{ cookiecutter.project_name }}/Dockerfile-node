@@ -12,3 +12,5 @@ RUN mkdir -p /home/node/.cache/yarn
 RUN chown node:node /home/node/.cache/yarn
 
 USER node
+
+WORKDIR /src/
