@@ -36,6 +36,6 @@ docker-compose -f docker-compose.yml -f docker-compose.travis.yml build --no-cac
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web pytest
 
 echo "Installing packages and running JS tests..."
-docker-compose -f docker-compose.yml -f docker-compose.travis.yml -f docker-compose.override.yml run -u $UID watch bash -c 'yarn install && ./travis/js_tests.sh'
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml -f docker-compose.override.yml run -u root watch bash -c 'yarn install && ./travis/js_tests.sh'
 
 echo "Success!"
