@@ -5,10 +5,10 @@ export TEMPDIR="$(mktemp -d)"
 cookiecutter . -o "$TEMPDIR" --no-input
 echo "Tempdir is $TEMPDIR"
 
-export TOXINI_DIR="$(find "$TEMPDIR" -name tox.ini -printf '%h\n')"
-export PROJECT_NAME="$(basename "$TOXINI_DIR")"
-cd "$TOXINI_DIR"
-cp "$TOXINI_DIR"/.env.example "$TOXINI_DIR"/.env
+export BASEDIR="$(find "$TEMPDIR" -name apt.txt -printf '%h\n')"
+export PROJECT_NAME="$(basename "$BASEDIR")"
+cd "$BASEDIR"
+cp "$BASEDIR"/.env.example "$BASEDIR"/.env
 pip-compile
 
 # make sure nvm is available
@@ -33,17 +33,9 @@ docker-compose ps
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml kill
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml rm -f
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml build --no-cache
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web pytest
 
-docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web tox
-
-# Make a lock file to avoid a COPY failure in the Dockerfile
-# First, install the right versions of node and yarn
-echo "Installing yarn..."
-node ./scripts/install_yarn.js
-echo "Installing packages..."
-yarn install
-docker build --no-cache -f ./travis/Dockerfile-travis-watch-build -t mitodl/${PROJECT_NAME}_watch_travis .
-docker build --no-cache -f ./travis/Dockerfile-travis-watch -t travis-watch .
-./travis/js_tests.sh
+echo "Installing packages and running JS tests..."
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml -f docker-compose.override.yml run -u root watch bash -c 'yarn install && ./travis/js_tests.sh'
 
 echo "Success!"

@@ -1,26 +1,11 @@
-version: '2.1'
+version: '3.7'
+# define environment variables to avoid ImproperlyConfigured
 services:
-  python:
-    build:
-      context: .
-      # TODO: upload dockerfile first then uncomment this line
-      # dockerfile: ./travis/Dockerfile-travis-web
-      dockerfile: ./Dockerfile
-
   web:
-    build:
-      context: .
-      # TODO: upload dockerfile first then uncomment this line
-      # dockerfile: ./travis/Dockerfile-travis-web
-      dockerfile: ./Dockerfile
-
-  celery:
-    build:
-      context: .
-      # TODO: upload dockerfile first then uncomment this line
-      # dockerfile: ./travis/Dockerfile-travis-web
-      dockerfile: ./Dockerfile
     environment:
-      # for celery, to avoid ImproperlyConfigured
+      MAILGUN_URL: 'http://fake.example.com'
+      MAILGUN_KEY: 'fake'
+  celery:
+    environment:
       MAILGUN_URL: 'http://fake.example.com'
       MAILGUN_KEY: 'fake'
