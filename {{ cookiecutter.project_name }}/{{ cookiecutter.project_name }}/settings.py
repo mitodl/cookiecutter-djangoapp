@@ -17,6 +17,8 @@ from {{ cookiecutter.project_name }}.envs import (
 
 VERSION = "0.0.0"
 
+SITE_ID = get_int("{{ cookiecutter.project_name|upper }}_SITE_ID", 1)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -55,6 +57,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'server_status',
     'raven.contrib.django.raven_compat',
     # Put our apps after this point
@@ -74,6 +77,7 @@ MIDDLEWARE = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.contrib.sites.middleware.CurrentSiteMiddleware",
 )
 
 # enable the nplusone profiler only in debug mode
@@ -142,6 +146,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+# django-robots
+ROBOTS_USE_HOST = False
+ROBOTS_CACHE_TIMEOUT = get_int("ROBOTS_CACHE_TIMEOUT", 60 * 60 * 24)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/

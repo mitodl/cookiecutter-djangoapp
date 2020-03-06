@@ -24,6 +24,7 @@ from {{ cookiecutter.project_name }}.views import index
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('status/', include('server_status.urls')),
+    path("robots.txt", include("robots.urls")),
 
     # Example view
     path('', index, name='{{ cookiecutter.project_name }}-index'),
