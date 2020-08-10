@@ -1,50 +1,68 @@
-const path = require("path");
-const webpack = require("webpack");
+const path = require("path")
+const webpack = require("webpack")
 
 module.exports = {
   config: {
     entry: {
-      'root': ['babel-polyfill', './static/js/entry/root'],
-      'style': './static/js/entry/style',
+      root:         ["@babel/polyfill", "./static/js/entry/root"],
+      header:       ["@babel/polyfill", "./static/js/entry/header"],
+      style:        "./static/js/entry/style",
+      third_party:  ["@babel/polyfill", "./static/js/entry/third-party"],
+      django:       "./static/js/entry/django"
     },
     module: {
       rules: [
         {
           test: /\.(svg|ttf|woff|woff2|eot|gif)$/,
-          use: 'url-loader'
+          use:  "url-loader"
         },
+        {
+          test: require.resolve('jquery'),
+          use:  [{
+            loader:  'expose-loader',
+            options: 'jQuery'
+          },
+          {
+            loader:  'expose-loader',
+            options: '$'
+          }]
+        },
+        {
+          test: require.resolve('hls.js'),
+          use:  [{
+            loader:  'expose-loader',
+            options: 'Hls'
+          }]
+        }
       ]
     },
     resolve: {
-      modules: [
-        path.join(__dirname, "static/js"),
-        "node_modules"
-      ],
-      extensions: ['.js', '.jsx'],
+      modules:    [path.join(__dirname, "static/js"), "node_modules"],
+      extensions: [".js", ".jsx"]
     },
     performance: {
       hints: false
     }
   },
   babelSharedLoader: {
-    test: /\.jsx?$/,
-    exclude: /node_modules/,
-    loader: 'babel-loader',
-    query: {
-      "presets": [
-        ["env", { "modules": false }],
-        "react",
+    test:    /\.jsx?$/,
+    include: [
+      path.resolve(__dirname, "static/js"),
+      path.resolve(__dirname, "node_modules/query-string"),
+      path.resolve(__dirname, "node_modules/strict-uri-encode"),
+    ],
+    loader:  "babel-loader",
+    query:   {
+      presets: [
+        ["@babel/preset-env", { modules: false }],
+        "@babel/preset-react",
       ],
-      "ignore": [
-        "node_modules/**"
-      ],
-      "plugins": [
-        "transform-flow-strip-types",
+      plugins: [
         "react-hot-loader/babel",
-        "transform-object-rest-spread",
-        "transform-class-properties",
-        "syntax-dynamic-import",
+        "@babel/plugin-proposal-object-rest-spread",
+        "@babel/plugin-proposal-class-properties",
+        "@babel/plugin-syntax-dynamic-import"
       ]
     }
-  },
-};
+  }
+}

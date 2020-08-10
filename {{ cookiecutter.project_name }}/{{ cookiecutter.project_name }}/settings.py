@@ -60,6 +60,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'server_status',
     'raven.contrib.django.raven_compat',
+    # django-robots
+    "robots",
     # Put our apps after this point
     '{{ cookiecutter.project_name }}',
 )

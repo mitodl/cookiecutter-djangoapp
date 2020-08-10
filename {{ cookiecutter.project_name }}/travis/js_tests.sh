@@ -20,7 +20,6 @@ run_test npm run codecov
 run_test npm run lint
 run_test npm run fmt:check
 run_test npm run scss_lint
-run_test npm run flow
 run_test node node_modules/webpack/bin/webpack.js --config webpack.config.prod.js --bail
 
 exit $status
