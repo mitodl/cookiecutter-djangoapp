@@ -16,24 +16,6 @@ module.exports = {
           test: /\.(svg|ttf|woff|woff2|eot|gif)$/,
           use:  "url-loader"
         },
-        {
-          test: require.resolve('jquery'),
-          use:  [{
-            loader:  'expose-loader',
-            options: 'jQuery'
-          },
-          {
-            loader:  'expose-loader',
-            options: '$'
-          }]
-        },
-        {
-          test: require.resolve('hls.js'),
-          use:  [{
-            loader:  'expose-loader',
-            options: 'Hls'
-          }]
-        }
       ]
     },
     resolve: {
