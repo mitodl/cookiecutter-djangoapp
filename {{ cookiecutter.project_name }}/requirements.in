@@ -10,7 +10,7 @@ faker
 ipython
 newrelic
 psycopg2
-raven
 redis
 requests
+sentry-sdk
 uwsgi

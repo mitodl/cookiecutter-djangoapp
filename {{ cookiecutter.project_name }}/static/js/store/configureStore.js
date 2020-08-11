@@ -1,7 +1,7 @@
 import { prop } from "ramda"
 import { compose, createStore, applyMiddleware } from "redux"
 import { createLogger } from "redux-logger"
-import { queryMiddlewareAdvanced } from "redux-query/advanced"
+import { queryMiddleware } from "redux-query"
 
 import { makeRequest } from "./network_interface"
 import rootReducer from "../reducers"
@@ -9,17 +9,17 @@ import rootReducer from "../reducers"
 // Setup middleware
 export default function configureStore(initialState) {
   const COMMON_MIDDLEWARE = [
-    queryMiddlewareAdvanced(makeRequest)(prop("queries"), prop("entities"))
+    queryMiddleware(makeRequest, prop("queries"), prop("entities"))
   ]
 
   // Store factory configuration
   let createStoreWithMiddleware
-  if (process.env.NODE_ENV !== "production" && !global.TESTING) {
+  if (process.env.NODE_ENV !== "production" && !global._testing) {
     createStoreWithMiddleware = compose(
       applyMiddleware(...COMMON_MIDDLEWARE, createLogger()),
-      window.__REDUX_DEVTOOLS_EXTENSION__
-        ? window.__REDUX_DEVTOOLS_EXTENSION__()
-        : f => f
+      window.__REDUX_DEVTOOLS_EXTENSION__ ?
+        window.__REDUX_DEVTOOLS_EXTENSION__() :
+        f => f
     )(createStore)
   } else {
     createStoreWithMiddleware = compose(applyMiddleware(...COMMON_MIDDLEWARE))(

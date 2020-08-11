@@ -9,12 +9,12 @@ const { JSDOM } = require("jsdom")
 const jsdom = new JSDOM("<!doctype html><html><body></body></html>")
 const { window } = jsdom
 
+// react got a little more picky about the polyfill for
+// requestAnimationFrame, see:
+// https://reactjs.org/docs/javascript-environment-requirements.html
 const { polyfill } = require("raf")
 polyfill(global)
 polyfill(window)
-
-// polyfill for the web crypto module
-window.crypto = require("@trust/webcrypto")
 
 // We need to explicitly change the URL when window.location is used
 

@@ -6,11 +6,6 @@ import App from "./containers/App"
 import withTracker from "./util/withTracker"
 
 export default class Root extends React.Component {
-  props: {
-    history: Object,
-    store: Store
-  }
-
   render() {
     const { children, history, store } = this.props
 
