@@ -5,10 +5,7 @@ module.exports = {
   config: {
     entry: {
       root:         ["@babel/polyfill", "./static/js/entry/root"],
-      header:       ["@babel/polyfill", "./static/js/entry/header"],
       style:        "./static/js/entry/style",
-      third_party:  ["@babel/polyfill", "./static/js/entry/third-party"],
-      django:       "./static/js/entry/django"
     },
     module: {
       rules: [
