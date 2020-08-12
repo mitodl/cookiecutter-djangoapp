@@ -16,7 +16,7 @@ def before_send(event, hint):
 
     Args:
         event (dict): event object
-        hints (dict): event hints, see https://docs.sentry.io/platforms/python/#hints
+        hint (dict): event hints, see https://docs.sentry.io/platforms/python/#hints
 
     Returns:
         dict or None: returns the modified event or None to filter out the event
