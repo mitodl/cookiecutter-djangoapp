@@ -33,7 +33,7 @@ docker-compose ps
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml kill
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml rm -f
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml build --no-cache
-docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web bash -c './manage.py generate_app_json > /dev/null && cat app.json' > app.json
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web bash -c './manage.py generate_app_json >& /dev/null && cat app.json' > app.json
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml build  # copy the app.json file into the container
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web pytest
 
