@@ -14,10 +14,33 @@ from {{ cookiecutter.project_name }}.envs import (
     get_int,
     get_string,
 )
+from {{ cookiecutter.project_name }}.sentry import init_sentry
 
 VERSION = "0.0.0"
 
 SITE_ID = get_int("{{ cookiecutter.project_name|upper }}_SITE_ID", 1)
+
+# Sentry
+ENVIRONMENT = get_string('{{ cookiecutter.project_name|upper }}_ENVIRONMENT', 'dev')
+# this is only available to heroku review apps
+HEROKU_APP_NAME = get_string(
+    "HEROKU_APP_NAME", None, description="The name of the review app"
+)
+
+# initialize Sentry before doing anything else so we capture any config errors
+SENTRY_DSN = get_string(
+    "SENTRY_DSN", "", description="The connection settings for Sentry"
+)
+SENTRY_LOG_LEVEL = get_string(
+    "SENTRY_LOG_LEVEL", "ERROR", description="The log level for Sentry"
+)
+init_sentry(
+    dsn=SENTRY_DSN,
+    environment=ENVIRONMENT,
+    version=VERSION,
+    log_level=SENTRY_LOG_LEVEL,
+    heroku_app_name=HEROKU_APP_NAME,
+)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -59,7 +82,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'server_status',
-    'raven.contrib.django.raven_compat',
     # django-robots
     "robots",
     # Put our apps after this point
@@ -72,7 +94,6 @@ if not DISABLE_WEBPACK_LOADER_STATS:
 
 MIDDLEWARE = (
     'django.middleware.security.SecurityMiddleware',
-    'raven.contrib.django.raven_compat.middleware.SentryResponseErrorIdMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -198,7 +219,6 @@ else:
 # Logging configuration
 LOG_LEVEL = get_string('{{ cookiecutter.project_name|upper }}_LOG_LEVEL', 'INFO')
 DJANGO_LOG_LEVEL = get_string('DJANGO_LOG_LEVEL', 'INFO')
-SENTRY_LOG_LEVEL = get_string('SENTRY_LOG_LEVEL', 'ERROR')
 
 # For logging to a remote syslog host
 LOG_HOST = get_string('{{ cookiecutter.project_name|upper }}_LOG_HOST', 'localhost')
@@ -246,26 +266,17 @@ LOGGING = {
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'sentry': {
-            'level': SENTRY_LOG_LEVEL,
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-            'formatter': 'verbose'
-        },
     },
     'loggers': {
         'django': {
             'propagate': True,
             'level': DJANGO_LOG_LEVEL,
-            'handlers': ['console', 'syslog', 'sentry'],
+            'handlers': ['console', 'syslog'],
         },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': DJANGO_LOG_LEVEL,
             'propagate': True,
-        },
-        'raven': {
-            'level': SENTRY_LOG_LEVEL,
-            'handlers': []
         },
         'nplusone': {
             'handlers': ['console'],
@@ -273,18 +284,9 @@ LOGGING = {
         }
     },
     'root': {
-        'handlers': ['console', 'syslog', 'sentry'],
+        'handlers': ['console', 'syslog'],
         'level': LOG_LEVEL,
     },
-}
-
-# Sentry
-ENVIRONMENT = get_string('{{ cookiecutter.project_name|upper }}_ENVIRONMENT', 'dev')
-SENTRY_CLIENT = 'raven.contrib.django.raven_compat.DjangoClient'
-RAVEN_CONFIG = {
-    'dsn': get_string('SENTRY_DSN', ''),
-    'environment': ENVIRONMENT,
-    'release': VERSION
 }
 
 # server-status
@@ -321,12 +323,27 @@ else:
     DEFAULT_FILE_STORAGE = 'storages.backends.overwrite.OverwriteStorage'
 
 # Celery
-USE_CELERY = True
-CELERY_BROKER_URL = get_string("CELERY_BROKER_URL", get_string("REDISCLOUD_URL", None))
-CELERY_RESULT_BACKEND = get_string(
-    "CELERY_RESULT_BACKEND", get_string("REDISCLOUD_URL", None)
+REDISCLOUD_URL = get_string(
+    "REDISCLOUD_URL", None, description="RedisCloud connection url"
 )
-CELERY_TASK_ALWAYS_EAGER = get_bool("CELERY_TASK_ALWAYS_EAGER", False)
+if REDISCLOUD_URL is not None:
+    _redis_url = REDISCLOUD_URL
+else:
+    _redis_url = get_string(
+        "REDIS_URL", None, description="Redis URL for non-production use"
+    )
+
+CELERY_BROKER_URL = get_string(
+    "CELERY_BROKER_URL",
+    _redis_url,
+    description="Where celery should get tasks, default is Redis URL",
+)
+CELERY_RESULT_BACKEND = get_string(
+    "CELERY_RESULT_BACKEND",
+    _redis_url,
+    description="Where celery should put task results, default is Redis URL",
+)
+CELERY_TASK_ALWAYS_EAGER = get_bool("CELERY_TASK_ALWAYS_EAGER", False, dev_only=True)
 CELERY_TASK_EAGER_PROPAGATES = get_bool("CELERY_TASK_EAGER_PROPAGATES", True)
 
 CELERY_TASK_SERIALIZER = 'json'
