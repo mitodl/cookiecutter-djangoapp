@@ -31,7 +31,6 @@ def test_webpack_url(mocker, settings, client):
 
     bundles = [bundle[0][1] for bundle in get_bundle.call_args_list]
     assert set(bundles) == {
-        'common',
         'root',
         'style',
     }
@@ -40,6 +39,6 @@ def test_webpack_url(mocker, settings, client):
         'gaTrackingID': 'fake',
         'public_path': '/static/bundles/',
         'environment': settings.ENVIRONMENT,
-        'sentry_dsn': None,
+        'sentry_dsn': "",
         'release_version': settings.VERSION,
     }

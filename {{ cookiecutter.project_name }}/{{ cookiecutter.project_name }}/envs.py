@@ -280,7 +280,7 @@ def generate_app_json():
         dict:
             object that can be serialized to JSON for app.json
     """
-    from django.conf import settings
+    from django.conf import settings  # pylint: disable=import-outside-toplevel
 
     with open("app.base.json") as app_template_json:
         config = json.load(app_template_json)

@@ -19,4 +19,5 @@ echo "MAILGUN_KEY=fake" >> .env
 echo "MAILGUN_URL=fake" >> .env
 docker-compose rm -f
 docker-compose build
+docker-compose run web ./manage.py generate_app_json
 docker-compose up

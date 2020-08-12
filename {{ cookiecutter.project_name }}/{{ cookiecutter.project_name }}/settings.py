@@ -141,11 +141,24 @@ WSGI_APPLICATION = '{{ cookiecutter.project_name }}.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
 DEFAULT_DATABASE_CONFIG = dj_database_url.parse(
-    get_string('DATABASE_URL', None)
+    get_string(
+        "DATABASE_URL",
+        "sqlite:///{0}".format(os.path.join(BASE_DIR, "db.sqlite3")),
+        description="The connection url to the Postgres database",
+        required=True,
+        write_app_json=False,
+    )
 )
-DEFAULT_DATABASE_CONFIG['CONN_MAX_AGE'] = get_int('{{ cookiecutter.project_name|upper }}_DB_CONN_MAX_AGE', 0)
+DEFAULT_DATABASE_CONFIG["CONN_MAX_AGE"] = get_int(
+    "{{ cookiecutter.project_name|upper }}_DB_CONN_MAX_AGE",
+    0,
+    description="Maximum age of connection to Postgres in seconds",
+)
+# If True, disables server-side database cursors to prevent invalid cursor errors when using pgbouncer
+DEFAULT_DATABASE_CONFIG["DISABLE_SERVER_SIDE_CURSORS"] = get_bool(
+    "{{ cookiecutter.project_name|upper }}_DB_DISABLE_SS_CURSORS", True
+)
 
 if get_bool('{{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL', False):
     DEFAULT_DATABASE_CONFIG['OPTIONS'] = {}
@@ -316,11 +329,7 @@ if (
         'AWS_STORAGE_BUCKET_NAME'
     )
 if {{ cookiecutter.project_name|upper }}_USE_S3:
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-else:
-    # by default use django.core.files.storage.FileSystemStorage with
-    # overwrite feature
-    DEFAULT_FILE_STORAGE = 'storages.backends.overwrite.OverwriteStorage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Celery
 REDISCLOUD_URL = get_string(

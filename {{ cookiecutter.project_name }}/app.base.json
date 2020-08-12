@@ -96,7 +96,7 @@
     },
     "{{ cookiecutter.project_name|upper }}_SITE_ID": {
       "description": "The default site id for django sites framework",
-      "required": false,
+      "required": false
     },
     "{{ cookiecutter.project_name|upper }}_SUPPORT_EMAIL": {
       "description": "Email address listed for customer support"
