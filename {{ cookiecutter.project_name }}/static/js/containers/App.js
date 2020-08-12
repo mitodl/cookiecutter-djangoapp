@@ -5,7 +5,7 @@ export default class App extends React.Component {
   render() {
     return (
       <div className="app">
-        <Route path="/" component={<div>Hello cookiecutter!</div>} />
+        <Route path="/" render={() => <div>Hello cookiecutter!</div>} />
       </div>
     )
   }
