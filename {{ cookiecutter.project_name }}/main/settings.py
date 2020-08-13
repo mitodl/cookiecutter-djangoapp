@@ -104,6 +104,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django.contrib.sites.middleware.CurrentSiteMiddleware",
+    "{{ cookiecutter.project_name }}.middleware.CachelessAPIMiddleware",
 )
 
 # enable the nplusone profiler only in debug mode

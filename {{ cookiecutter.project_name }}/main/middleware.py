@@ -117,3 +117,13 @@ class CookieFeatureFlagMiddleware(MiddlewareMixin):
             request (django.http.request.Request): the request to inspect
         """
         request.{{ cookiecutter.project_name }}_feature_flags = self.get_feature_flags(request)
+
+
+class CachelessAPIMiddleware(MiddlewareMixin):
+    """ Add Cache-Control header to API responses"""
+
+    def process_response(self, request, response):
+        """ Add a Cache-Control header to an API response """
+        if request.path.startswith("/api/"):
+            response["Cache-Control"] = "private, no-store"
+        return response
