@@ -9,4 +9,4 @@ class URLTests(TestCase):
 
     def test_urls(self):
         """Make sure URLs match with resolved names"""
-        assert reverse('{{ cookiecutter.project_name }}-index') == '/'
+        assert reverse('main-index') == '/'

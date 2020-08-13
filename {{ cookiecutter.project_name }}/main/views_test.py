@@ -14,7 +14,7 @@ pytestmark = [
 
 def test_index_view(client):
     """Verify the index view is as expected"""
-    response = client.get(reverse('{{ cookiecutter.project_name }}-index'))
+    response = client.get(reverse('main-index'))
     assert response.status_code == 200
     assert b"Hi, I'm {{ cookiecutter.project_name }}" in response.content
 
@@ -25,9 +25,9 @@ def test_webpack_url(mocker, settings, client):
     settings.ENVIRONMENT = 'test'
     settings.VERSION = '4.5.6'
     settings.USE_WEBPACK_DEV_SERVER = False
-    get_bundle = mocker.patch('{{ cookiecutter.project_name }}.templatetags.render_bundle._get_bundle')
+    get_bundle = mocker.patch('main.templatetags.render_bundle._get_bundle')
 
-    response = client.get(reverse('{{ cookiecutter.project_name }}-index'))
+    response = client.get(reverse('main-index'))
 
     bundles = [bundle[0][1] for bundle in get_bundle.call_args_list]
     assert set(bundles) == {

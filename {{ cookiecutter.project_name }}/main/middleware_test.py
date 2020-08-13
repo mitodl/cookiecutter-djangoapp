@@ -10,11 +10,11 @@ from django.test import (
     TestCase,
 )
 
-from {{ cookiecutter.project_name }}.middleware import (
+from main.middleware import (
     CookieFeatureFlagMiddleware,
     QueryStringFeatureFlagMiddleware,
 )
-from {{ cookiecutter.project_name }}.utils import FeatureFlag
+from main.utils import FeatureFlag
 
 FEATURE_FLAG_COOKIE_NAME = 'TEST_COOKIE'
 FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS = 60

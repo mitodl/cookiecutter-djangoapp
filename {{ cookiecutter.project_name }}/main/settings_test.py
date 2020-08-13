@@ -13,7 +13,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 import semantic_version
 
-from {{ cookiecutter.project_name }} import envs
+from main import envs
 
 REQUIRED_SETTINGS = {
     "MAILGUN_SENDER_DOMAIN": "mailgun.fake.domain",
@@ -25,7 +25,7 @@ REQUIRED_SETTINGS = {
 def cleanup_settings():
     """Cleanup settings after a test"""
     envs.env.reload()
-    importlib.reload(sys.modules["{{ cookiecutter.project_name }}.settings"])
+    importlib.reload(sys.modules["main.settings"])
 
 
 class TestSettings(TestCase):
@@ -45,10 +45,10 @@ class TestSettings(TestCase):
         Returns:
             dict: dictionary of the newly reloaded settings ``vars``
         """
-        importlib.reload(sys.modules["{{ cookiecutter.project_name }}.settings"])
+        importlib.reload(sys.modules["main.settings"])
         # Restore settings to original settings after test
         self.addCleanup(cleanup_settings)
-        return vars(sys.modules["{{ cookiecutter.project_name }}.settings"])
+        return vars(sys.modules["main.settings"])
 
     def test_s3_settings(self):
         """Verify that we enable and configure S3 with a variable"""
@@ -134,7 +134,7 @@ class TestSettings(TestCase):
         """
         generate_app_json should return a dictionary of JSON config for app.json
         """
-        from {{ cookiecutter.project_name }}.envs import generate_app_json  # pylint: disable=import-outside-toplevel
+        from main.envs import generate_app_json  # pylint: disable=import-outside-toplevel
 
         with open("app.json") as app_json_file:
             app_json = json.load(app_json_file)

@@ -8,13 +8,13 @@ import platform
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
-from {{ cookiecutter.project_name }}.envs import (
+from main.envs import (
     get_any,
     get_bool,
     get_int,
     get_string,
 )
-from {{ cookiecutter.project_name }}.sentry import init_sentry
+from main.sentry import init_sentry
 
 VERSION = "0.0.0"
 
@@ -87,7 +87,7 @@ INSTALLED_APPS = (
     # django-robots
     "robots",
     # Put our apps after this point
-    '{{ cookiecutter.project_name }}',
+    "main",
     "users",
 )
 
@@ -121,7 +121,7 @@ LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/'
 LOGIN_ERROR_URL = '/'
 
-ROOT_URLCONF = '{{ cookiecutter.project_name }}.urls'
+ROOT_URLCONF = 'main.urls'
 
 TEMPLATES = [
     {
@@ -139,7 +139,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = '{{ cookiecutter.project_name }}.wsgi.application'
+WSGI_APPLICATION = 'main.wsgi.application'
 
 
 # Database
@@ -399,8 +399,8 @@ MIDDLEWARE_FEATURE_FLAG_COOKIE_MAX_AGE_SECONDS = get_int('MIDDLEWARE_FEATURE_FLA
 
 if MIDDLEWARE_FEATURE_FLAG_QS_PREFIX:
     MIDDLEWARE = MIDDLEWARE + (
-        '{{ cookiecutter.project_name }}.middleware.QueryStringFeatureFlagMiddleware',
-        '{{ cookiecutter.project_name }}.middleware.CookieFeatureFlagMiddleware',
+        'main.middleware.QueryStringFeatureFlagMiddleware',
+        'main.middleware.CookieFeatureFlagMiddleware',
     )
 
 
