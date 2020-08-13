@@ -49,9 +49,6 @@
     "MAILGUN_FROM_EMAIL": {
       "description": "Email which mail comes from"
     },
-    "MAILGUN_BCC_TO_EMAIL": {
-      "description": "Email address used with bcc email"
-    },
     "{{ cookiecutter.project_name|upper }}_ADMIN_EMAIL": {
       "description": "E-mail to send 500 reports to."
     },
