@@ -53,12 +53,9 @@ http {
             try_files $uri $uri/ /staticfiles/$1 /staticfiles/$1/ =404;
         }
 
-        location = /robots.txt {
-            alias /app/static/robots.txt;
-        }
-
-        location = /.well-known/dnt-policy.txt {
-            return 204;
+        location ~* /static/hash.txt {
+            expires -1;
+            add_header Cache-Control private;
         }
 
         location / {
@@ -78,6 +75,7 @@ http {
             uwsgi_pass unix:/tmp/nginx.socket;
             uwsgi_pass_request_headers on;
             uwsgi_pass_request_body on;
+            uwsgi_ignore_client_abort on;
             client_max_body_size 25M;
         }
     }

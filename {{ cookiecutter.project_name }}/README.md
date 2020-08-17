@@ -111,14 +111,5 @@ Tests should be run in the Docker container, not the host machine. They can be r
     docker-compose run --rm watch npm run-script singleTest /path/to/test.js
     # Run the JS linter
     docker-compose run --rm watch npm run-script lint
-    # Run JS type-checking
-    docker-compose run --rm watch npm run-script flow
     # Run SCSS linter
     docker-compose run --rm watch npm run scss_lint
-
-Note that running [`flow`](https://flowtype.org) may not work properly if your
-host machine isn't running Linux. If you are using a Mac, you'll need to run
-`flow` on your host machine, like this:
-
-    yarn install --frozen-lockfile
-    npm run-script flow

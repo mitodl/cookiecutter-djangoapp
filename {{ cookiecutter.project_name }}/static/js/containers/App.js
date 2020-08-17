@@ -1,19 +1,11 @@
-// @flow
 import React from "react"
 import { Route } from "react-router"
-import type { Match } from "react-router"
 
-import CheckboxPage from "./CheckboxPage"
-
-export default class App extends React.Component<*, void> {
-  props: {
-    match: Match
-  }
-
+export default class App extends React.Component {
   render() {
     return (
       <div className="app">
-        <Route path="/" component={CheckboxPage} />
+        <Route path="/" render={() => <div>Hello cookiecutter!</div>} />
       </div>
     )
   }

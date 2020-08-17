@@ -2,6 +2,7 @@ django
 celery
 dj-database-url
 django-redis
+django-robots
 django-server-status
 django-webpack-loader
 factory_boy
@@ -9,7 +10,7 @@ faker
 ipython
 newrelic
 psycopg2
-raven
 redis
 requests
+sentry-sdk
 uwsgi
