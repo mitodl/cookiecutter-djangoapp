@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as ContribUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from {{ cookiecutter.project_name }}.admin import TimestampedModelAdmin
+from main.admin import TimestampedModelAdmin
 from users.models import User
 
 
