@@ -12,11 +12,10 @@
     "from django.contrib.auth import get_user_model\n",
     "\n",
     "ABS_PROJECT_ROOT_PATH = \"/src\"\n",
-    "BASE_DJANGO_APP_NAME = os.environ.get(\"BASE_DJANGO_APP_NAME\")\n",
     "\n",
     "if not ABS_PROJECT_ROOT_PATH in sys.path:\n",
     "    sys.path.insert(0, ABS_PROJECT_ROOT_PATH)\n",
-    "os.environ.setdefault('DJANGO_SETTINGS_MODULE', '{}.settings'.format(BASE_DJANGO_APP_NAME))\n",
+    "os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')\n",
     "django.setup()\n",
     "\n",
     "User = get_user_model()"
