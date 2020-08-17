@@ -83,7 +83,7 @@ otherwise do in a Django shell. To get started:
     ```
   Here is a one-line command that will produce a browser-ready URL from that output. Run this in a separate terminal:
     ```bash
-    docker logs $(docker ps --format '{{ "{{" }}.Names}}' | grep "_notebook_run_") | grep -E "http://(.*):8080[^ ]+\w" | tail -1 | sed -e 's/^[[:space:]]*//'
+    docker logs $(docker ps --format '{{ "{{" }}.Names}}' | grep "_notebook_run_") | grep -E "http://(.*):8080[^ ]+\w" | tail -1 | sed -e 's/^[[:space:] or]*//'
     ```
   OSX users can pipe that output to `xargs open` to open a browser window directly with the URL from that command.
 - Navigate to the `.ipynb` file that you created and click it to run the notebook
