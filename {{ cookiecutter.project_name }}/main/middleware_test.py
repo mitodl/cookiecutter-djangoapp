@@ -5,12 +5,10 @@ from unittest.mock import (
 )
 
 import ddt
-from django.urls import reverse
 from django.test import (
     override_settings,
     TestCase,
 )
-import pytest
 
 from main.middleware import (
     CookieFeatureFlagMiddleware,
