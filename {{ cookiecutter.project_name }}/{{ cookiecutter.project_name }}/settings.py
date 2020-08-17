@@ -71,8 +71,10 @@ WEBPACK_LOADER = {
 }
 
 
-# Application definition
+# configure a custom user model
+AUTH_USER_MODEL = "users.User"
 
+# Application definition
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -86,6 +88,7 @@ INSTALLED_APPS = (
     "robots",
     # Put our apps after this point
     '{{ cookiecutter.project_name }}',
+    "users",
 )
 
 DISABLE_WEBPACK_LOADER_STATS = get_bool("DISABLE_WEBPACK_LOADER_STATS", False)
