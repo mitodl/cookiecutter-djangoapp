@@ -13,7 +13,6 @@ from django.test import (
 import pytest
 
 from main.middleware import (
-    CachelessAPIMiddleware,
     CookieFeatureFlagMiddleware,
     QueryStringFeatureFlagMiddleware,
 )
@@ -128,17 +127,3 @@ class CookieFeatureFlagMiddlewareTest(TestCase):
         assert self.middleware.process_request(request) is None
         request.get_signed_cookie.assert_not_called()
         assert request.{{ cookiecutter.project_name }}_feature_flags == set()
-
-
-@pytest.mark.parametrize(
-    "view, cache_value",
-    [["applications", None], ["applications_api-list", "private, no-store"]],
-)
-def test_cacheless_api_middleware(rf, view, cache_value):
-    """Tests that the response has a cache-control header for API URLs"""
-    request = rf.get(reverse(view))
-    middleware = CachelessAPIMiddleware()
-    assert (
-        middleware.process_response(request, {}).get("Cache-Control", None)
-        == cache_value
-    )
