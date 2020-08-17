@@ -113,3 +113,18 @@ Tests should be run in the Docker container, not the host machine. They can be r
     docker-compose run --rm watch npm run-script lint
     # Run SCSS linter
     docker-compose run --rm watch npm run scss_lint
+
+
+## Commits
+
+To ensure commits to github are safe, you should install the following first:
+```
+pip install pre_commit
+pre-commit install
+```
+
+To automatically install precommit hooks when cloning a repo, you can run this:
+```
+git config --global init.templateDir ~/.git-template
+pre-commit init-templatedir ~/.git-template
+```    
