@@ -8,7 +8,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 class RootConfig(AppConfig):
     """AppConfig for this project"""
-    name = '{{ cookiecutter.project_name }}'
+    name = 'main'
 
     def ready(self):
         missing_settings = [

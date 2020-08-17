@@ -1,7 +1,7 @@
 """Tests for environment variable parsing functions"""
 import pytest
 
-from {{ cookiecutter.project_name }} import envs
+from main import envs
 
 
 FAKE_ENVIRONS = {

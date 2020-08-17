@@ -18,7 +18,7 @@ from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
 
-from {{ cookiecutter.project_name }}.views import index
+from main.views import index
 
 
 urlpatterns = [
@@ -27,7 +27,7 @@ urlpatterns = [
     path("robots.txt", include("robots.urls")),
 
     # Example view
-    path('', index, name='{{ cookiecutter.project_name }}-index'),
+    path('', index, name='main-index'),
 ]
 
 if settings.DEBUG:

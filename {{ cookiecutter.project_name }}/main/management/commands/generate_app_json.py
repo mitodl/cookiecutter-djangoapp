@@ -3,7 +3,7 @@ import json
 
 from django.core.management.base import BaseCommand
 
-from {{ cookiecutter.project_name }} import envs
+from main import envs
 
 
 class Command(BaseCommand):

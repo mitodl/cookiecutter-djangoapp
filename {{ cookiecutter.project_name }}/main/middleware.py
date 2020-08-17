@@ -3,7 +3,7 @@ from django.conf import settings
 from django import shortcuts
 from django.utils.deprecation import MiddlewareMixin
 
-from {{ cookiecutter.project_name }}.utils import FeatureFlag
+from main.utils import FeatureFlag
 
 
 class QueryStringFeatureFlagMiddleware(MiddlewareMixin):

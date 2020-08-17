@@ -6,7 +6,7 @@ import json
 from django.conf import settings
 from django.shortcuts import render
 
-from {{ cookiecutter.project_name }}.templatetags.render_bundle import public_path
+from main.templatetags.render_bundle import public_path
 
 
 def index(request):

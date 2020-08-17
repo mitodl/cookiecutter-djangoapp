@@ -4,8 +4,8 @@ Tests for render_bundle
 from django.test.client import RequestFactory
 import pytest
 
-from {{ cookiecutter.project_name }}.utils import webpack_dev_server_url
-from {{ cookiecutter.project_name }}.templatetags.render_bundle import render_bundle, public_path
+from main.utils import webpack_dev_server_url
+from main.templatetags.render_bundle import render_bundle, public_path
 
 
 FAKE_COMMON_BUNDLE = [
@@ -37,7 +37,7 @@ def test_debug(settings, mocker):
     bundle_name = "bundle_name"
 
     get_loader = mocker.patch(
-        "{{ cookiecutter.project_name }}.templatetags.render_bundle.get_loader", return_value=loader
+        "main.templatetags.render_bundle.get_loader", return_value=loader
     )
     assert render_bundle(context, bundle_name) == (
         '<script type="text/javascript" src="{base}/{filename}" >'
@@ -66,7 +66,7 @@ def test_production(settings, mocker):
     loader = mocker.Mock(get_bundle=get_bundle)
     bundle_name = "bundle_name"
     get_loader = mocker.patch(
-        "{{ cookiecutter.project_name }}.templatetags.render_bundle.get_loader", return_value=loader
+        "main.templatetags.render_bundle.get_loader", return_value=loader
     )
     assert render_bundle(context, bundle_name) == (
         '<script type="text/javascript" src="{base}/{filename}" >'
@@ -92,7 +92,7 @@ def test_missing_file(mocker):
     loader = mocker.Mock(get_bundle=get_bundle)
     bundle_name = "bundle_name"
     get_loader = mocker.patch(
-        "{{ cookiecutter.project_name }}.templatetags.render_bundle.get_loader", return_value=loader
+        "main.templatetags.render_bundle.get_loader", return_value=loader
     )
     assert render_bundle(context, bundle_name) == ""
 

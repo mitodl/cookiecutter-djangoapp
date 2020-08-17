@@ -2,7 +2,7 @@
 from django.db import models, transaction
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
-from {{ cookiecutter.project_name }}.models import TimestampedModel
+from main.models import TimestampedModel
 
 
 class UserManager(BaseUserManager):

@@ -7,7 +7,7 @@ import os
 
 from celery import Celery
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{ cookiecutter.project_name }}.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "main.settings")
 
 app = Celery("{{ cookiecutter.project_name }}")
 
