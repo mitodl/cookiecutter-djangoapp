@@ -51,9 +51,9 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/test_requirements.txt') }}
+          key: ${{ "{{" }} runner.os }}-pip-${{ "{{" }} hashFiles('**/requirements.txt', '**/test_requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            ${{ "{{" }} runner.os }}-pip-
       - name: Install dependencies
         run: pip install -r requirements.txt -r test_requirements.txt
 
@@ -113,10 +113,10 @@ jobs:
       - uses: actions/cache@v1
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: ${{ "{{" }} steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ "{{" }} runner.os }}-yarn-${{ "{{" }} hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ "{{" }} runner.os }}-yarn-
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-engines --prefer-offline
 
