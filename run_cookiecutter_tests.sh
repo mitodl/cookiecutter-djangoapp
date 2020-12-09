@@ -2,8 +2,8 @@
 set -euf -o pipefail
 
 export TEMPDIR="$(mktemp -d)"
-cookiecutter . -o "$TEMPDIR" --no-input
 echo "Tempdir is $TEMPDIR"
+cookiecutter . -o "$TEMPDIR" --no-input
 
 export BASEDIR="$(find "$TEMPDIR" -name apt.txt -printf '%h\n')"
 export PROJECT_NAME="$(basename "$BASEDIR")"
