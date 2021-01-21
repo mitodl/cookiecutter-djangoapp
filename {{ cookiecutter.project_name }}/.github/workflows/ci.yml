@@ -25,17 +25,6 @@ jobs:
         ports:
           - 6379:6379
 
-      elastic:
-        image: docker.elastic.co/elasticsearch/elasticsearch:6.7.1
-        env:
-          network.host: "0.0.0.0"
-          http.cors.enabled: "true"
-          http.cors.allow-origin: "*"
-          rest.action.multi.allow_explicit_index: "false"
-          ES_JAVA_OPTS: -Xms512m -Xmx512m
-        ports:
-          - 9200:9200
-
     steps:
       - uses: actions/checkout@v2
 
@@ -54,20 +43,18 @@ jobs:
           key: ${{ "{{" }} runner.os }}-pip-${{ "{{" }} hashFiles('**/requirements.txt', '**/test_requirements.txt') }}
           restore-keys: |
             ${{ "{{" }} runner.os }}-pip-
+
       - name: Install dependencies
         run: pip install -r requirements.txt -r test_requirements.txt
 
       - name: Lint
         run: pylint ./**/*.py
-
-      - name: Running Celery
-        run: |
-          celery -A main worker -B -l INFO &
-          sleep 10
         env:
-          CELERY_TASK_ALWAYS_EAGER: 'True'
-          CELERY_BROKER_URL: redis://localhost:6379/4
-          CELERY_RESULT_BACKEND: redis://localhost:6379/4
+          DJANGO_SETTINGS_MODULE: "main.settings"
+          PYTHONPATH: "."
+
+      - name: Black
+        run: black --check .
 
       - name: Tests
         run: |
