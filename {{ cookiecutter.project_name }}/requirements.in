@@ -9,6 +9,7 @@ factory_boy
 faker
 ipython
 newrelic
+pyOpenSSL
 psycopg2
 redis
 requests

@@ -1,9 +1,3 @@
----
-labels: "Work in Progress"
-name: "Pull Request"
-about: "Regular Pull Request"
----
-
 #### Pre-Flight checklist
 
 - [ ] Screenshots and design review for any changes that affect layout or styling
@@ -36,7 +30,4 @@ about: "Regular Pull Request"
 (Optional)
 
 #### Screenshots (if appropriate)
-(Optional)
-
-#### What GIF best describes this PR or how it makes you feel?
 (Optional)

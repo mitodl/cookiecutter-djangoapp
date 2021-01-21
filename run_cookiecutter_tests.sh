@@ -2,8 +2,8 @@
 set -euf -o pipefail
 
 export TEMPDIR="$(mktemp -d)"
-cookiecutter . -o "$TEMPDIR" --no-input
 echo "Tempdir is $TEMPDIR"
+cookiecutter . -o "$TEMPDIR" --no-input
 
 export BASEDIR="$(find "$TEMPDIR" -name apt.txt -printf '%h\n')"
 export PROJECT_NAME="$(basename "$BASEDIR")"
@@ -36,6 +36,6 @@ docker-compose -f docker-compose.yml -f docker-compose.travis.yml build --no-cac
 docker-compose -f docker-compose.yml -f docker-compose.travis.yml run web bash -c './manage.py generate_app_json && pytest'
 
 echo "Installing packages and running JS tests..."
-docker-compose -f docker-compose.yml -f docker-compose.travis.yml -f docker-compose.override.yml run -u root watch bash -c 'yarn install && ./travis/js_tests.sh'
+docker-compose -f docker-compose.yml -f docker-compose.travis.yml -f docker-compose.override.yml run -u root watch bash -c 'yarn install && npm run lint && npm run fmt:check && npm run scss_lint && npm run test && node node_modules/webpack/bin/webpack.js --config webpack.config.prod.js --bail'
 
 echo "Success!"
