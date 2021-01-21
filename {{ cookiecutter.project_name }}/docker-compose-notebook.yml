@@ -6,7 +6,6 @@ x-environment:
   NODE_ENV: 'production'
   DEV_ENV: 'True'  # necessary to have nginx connect to web container
   SECRET_KEY: local_unsafe_key
-  COVERAGE_DIR: htmlcov
   DATABASE_URL: postgres://postgres@db:5432/postgres
   {{ cookiecutter.project_name|upper }}_SECURE_SSL_REDIRECT: 'False'
   {{ cookiecutter.project_name|upper }}_DB_DISABLE_SSL: 'True'

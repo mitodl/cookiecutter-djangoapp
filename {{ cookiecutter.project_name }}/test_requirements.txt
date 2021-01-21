@@ -11,7 +11,7 @@ pylint==2.6.0
 pylint-django==2.3.0
 pytest
 pytest-cov
+pytest-env==0.6.2
 pytest-django
 pytest-mock
-pytest-pylint
 semantic-version
