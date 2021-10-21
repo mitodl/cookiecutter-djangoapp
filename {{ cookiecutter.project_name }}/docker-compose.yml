@@ -35,7 +35,7 @@ services:
     networks:
       default:
         aliases:
-          # this ensures that containers route this hostname back to the web app
+          # this ensures that pages route this hostname back to the web app
           - "xpro.odl.local"
   web:
     build:

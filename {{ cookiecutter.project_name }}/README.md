@@ -16,41 +16,80 @@ Run through those steps **including the addition of `/etc/hosts` aliases and the
 Described below are some setup steps that are not strictly necessary
 for running the app
 
-### Running tests
+# Testing and Formatting
 
-#### NOTE: These commands can be run with ```docker-compose exec``` to execute them in an already-running container, or with ```docker-compose run --rm``` to execute them in a new container.
+Writing tests, running the test suite, and formatting code follows the same steps that are outlined in [the common ODL web app guide](https://github.com/mitodl/handbook/blob/master/common-web-app-guide.md#testing-and-formatting).
+Below are some steps that may be particular to this project.
 
-    ### PYTHON TESTS/LINTING
-    # Run Python tests
-    docker-compose run --rm web pytest
-    # Run Python tests in a single file
-    docker-compose run --rm web pytest /path/to/test.py
-    # Run Python test cases in a single file that match some function/class name
-    docker-compose run --rm web pytest /path/to/test.py -k test_some_logic
-    # Run Python linter
-    docker-compose run --rm web pylint
+## JS/CSS Tests and Linting
 
-    ### PYTHON FORMATTING
-    # Format all python files
-    docker-compose run --rm web black .
-    # Format a specific file
-    docker-compose run --rm web black /path/to/file.py
+The JS linting, testing, and formatting tools can be used either in the `watch`
+(node.js) container or on the host computer from the command line.
 
-    ### JS/CSS TESTS/LINTING
-    # We also include a helper script to execute JS tests in most of our projects 
-    docker-compose run --rm watch ./scripts/test/js_test.sh
-    # Run JS tests in specific file
-    docker-compose run --rm watch ./scripts/test/js_test.sh path/to/file.js
-    # Run JS tests in specific file with a description that matches some text
-    docker-compose run --rm watch ./scripts/test/js_test.sh path/to/file.js "should test basic arithmetic"
-    # Run the JS linter
-    docker-compose run --rm watch npm run lint
-    # Run SCSS linter
-    docker-compose run --rm watch npm run scss_lint
+To run these things in the docker container, preface the commands below with
+`docker-compose run --rm watch`.
 
-    ### JS FORMATTING
-    # Run prettier-eslint, fixes style issues that may be causing the build to fail
-    docker-compose run --rm watch npm run fmt
+### JS tests
+
+We use [Jest](https://jestjs.io/) for our JavaScript tests. It's a nice batteries-included
+testing framework built for testing React components from the ground up.
+
+To run the tests:
+
+```sh
+npm test
+```
+
+For watch mode (`jest --watch`):
+
+```sh
+npm run test:watch
+```
+
+To run a specific test by name:
+
+```sh
+npm test -- -t "my test name"
+```
+
+(note that this will find partial matches too).
+
+To generate a coverage report:
+
+```sh
+npm run test:coverage
+```
+
+### JS formatting, linting, and typechecking
+
+We're using TypeScript for typechecking, eslint for linting, and prettier for
+opinionated code formatting. Just as with the tests above, these commands can
+all be run ether in the docker container or the host machine.
+
+To run the typechecker:
+
+```sh
+npm run typecheck
+```
+
+This runs `tsc --noEmit`, which basically typechecks the program and outputs
+any error but does not run a full compilation. We have incremental compilation
+turned on, so this should be relatively fast. It uses a file called
+`.tsbuildinfo` for incremental compilation.
+
+To run the linter:
+
+```sh
+npm run lint
+```
+
+And to format, try:
+
+```sh
+npm run fmt
+```
+
+You can also try `npm run fmt:check` to see if any files need to be reformatted.
 
 
 ### Running the app in a notebook
