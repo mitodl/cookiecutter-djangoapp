@@ -79,7 +79,7 @@
   },
   "engines": {
     "node": "16.11.0",
-    "yarn": "1.22.15"
+    "yarn": "1.22.22"
   },
   "scripts": {
     "lint": "eslint static/js --ext .js,.jsx,.ts,.tsx",
