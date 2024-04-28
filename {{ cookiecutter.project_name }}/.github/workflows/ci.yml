@@ -26,7 +26,7 @@ jobs:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
 
       - name: Apt install
         run: cat Aptfile | sudo xargs apt-get install
@@ -83,7 +83,7 @@ jobs:
   javascript-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4
 
       - name: Setup NodeJS
         uses: actions/setup-node@v2-beta
