@@ -9,7 +9,7 @@
   "dependencies": {
     "@babel/core": "^7.15.8",
     "@babel/eslint-parser": "^7.15.8",
-    "@sentry/browser": "^6.13.3",
+    "@sentry/browser": "^9.0.0",
     "@testing-library/react-hooks": "^7.0.2",
     "@types/enzyme": "^3.10.9",
     "@types/enzyme-adapter-react-16": "^1.0.6",
